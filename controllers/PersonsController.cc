@@ -8,15 +8,15 @@ namespace drogon {
     template<>
     inline Person fromRequest(const HttpRequest &req) {
         auto jsonPtr = req.getJsonObject();
-				auto jsonVal = (*jsonPtr);
-				auto person = Person(jsonVal);
-				return person;
+        auto jsonVal = (*jsonPtr);
+        auto person = Person(jsonVal);
+        return person;
     }
 }
 
 void PersonsController::index(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
 {
-		LOG_DEBUG << "index";
+    LOG_DEBUG << "index";
 
     auto dbClientPtr = drogon::app().getDbClient();
 
@@ -24,8 +24,8 @@ void PersonsController::index(const HttpRequestPtr &req, std::function<void (con
     auto persons = mp.orderBy(Person::Cols::_id).limit(25).offset(0).findAll();
 
     Json::Value ret;
-    for (auto j : persons) {
-        ret.append(j.toJson());
+    for (auto p : persons) {
+        ret.append(p.toJson());
     }
 
     auto resp=HttpResponse::newHttpJsonResponse(ret);
@@ -34,15 +34,15 @@ void PersonsController::index(const HttpRequestPtr &req, std::function<void (con
 
 void PersonsController::getPerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
 {
-		LOG_DEBUG << "getPerson personId: "<< personId;
+    LOG_DEBUG << "getPerson personId: "<< personId;
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Person> mp(dbClientPtr);
-		auto emp = mp.findBy(Criteria(Person::Cols::_id, CompareOperator::EQ, personId));
+    auto person = mp.findOne(Criteria(Person::Cols::_id, CompareOperator::EQ, personId));
 
     Json::Value ret;
-		ret = emp[0].toJson(); 
+    ret = person.toJson(); 
 
     auto resp=HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
@@ -50,7 +50,7 @@ void PersonsController::getPerson(const HttpRequestPtr &req, std::function<void 
 
 void PersonsController::newPerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pNewPerson) const
 {
-		LOG_DEBUG << "newPerson";
+    LOG_DEBUG << "newPerson";
 
     auto dbClientPtr = drogon::app().getDbClient();
 
@@ -65,33 +65,33 @@ void PersonsController::newPerson(const HttpRequestPtr &req, std::function<void 
 
 void PersonsController::updatePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId, Person &&pPersonDetails) const
 {
-		LOG_DEBUG << "updatePerson personId: " << personId;
+    LOG_DEBUG << "updatePerson personId: " << personId;
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Person> mp(dbClientPtr);
-		auto emp = mp.findBy(Criteria(Person::Cols::_id, CompareOperator::EQ, personId))[0];
+    auto person = mp.findOne(Criteria(Person::Cols::_id, CompareOperator::EQ, personId));
 
-		if (pPersonDetails.getJobId() != nullptr) {
-				emp.setJobId(pPersonDetails.getValueOfJobId());
-		}
-		if (pPersonDetails.getManagerId() != nullptr) {
-				emp.setManagerId(pPersonDetails.getValueOfManagerId());
-		}
-		if (pPersonDetails.getDepartmentId() != nullptr) {
-				emp.setDepartmentId(pPersonDetails.getValueOfDepartmentId());
-		}
-		if (pPersonDetails.getFirstName() != nullptr) {
-				emp.setFirstName(pPersonDetails.getValueOfFirstName());
-		}
-		if (pPersonDetails.getLastName() != nullptr) {
-				emp.setLastName(pPersonDetails.getValueOfLastName());
-		}
-		
-    mp.update(emp);
+    if (pPersonDetails.getJobId() != nullptr) {
+      person.setJobId(pPersonDetails.getValueOfJobId());
+    }
+    if (pPersonDetails.getManagerId() != nullptr) {
+      person.setManagerId(pPersonDetails.getValueOfManagerId());
+    }
+    if (pPersonDetails.getDepartmentId() != nullptr) {
+      person.setDepartmentId(pPersonDetails.getValueOfDepartmentId());
+    }
+    if (pPersonDetails.getFirstName() != nullptr) {
+      person.setFirstName(pPersonDetails.getValueOfFirstName());
+    }
+    if (pPersonDetails.getLastName() != nullptr) {
+      person.setLastName(pPersonDetails.getValueOfLastName());
+    }
+    
+    mp.update(person);
 
     Json::Value ret;
-    ret["result"] = emp.toJson();
+    ret["result"] = person.toJson();
 
     auto resp=HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
@@ -99,16 +99,40 @@ void PersonsController::updatePerson(const HttpRequestPtr &req, std::function<vo
 
 void PersonsController::deletePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
 {
-		LOG_DEBUG << "deletePerson, personId: ";
+    LOG_DEBUG << "deletePerson, personId: ";
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Person> mp(dbClientPtr);
-		mp.deleteBy(Criteria(Person::Cols::_id, CompareOperator::EQ, personId));
+    mp.deleteBy(Criteria(Person::Cols::_id, CompareOperator::EQ, personId));
 
     Json::Value ret;
     ret["result"] = "OK";
 
     auto resp=HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
+}
+
+void PersonsController::getDirectReports(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
+{
+    LOG_DEBUG << "getDirectReports personId: "<< personId;
+
+    auto dbClientPtr = drogon::app().getDbClient();
+
+    Mapper<Person> mp(dbClientPtr);
+    auto dep = mp.findOne(Criteria(Person::Cols::_id, CompareOperator::EQ, personId));
+
+    dep.getPersons(dbClientPtr, 
+      [callback](const std::vector<Person> persons) {
+          Json::Value ret;
+          for (auto p : persons) {
+              ret.append(p.toJson());
+          }
+          auto resp=HttpResponse::newHttpJsonResponse(ret);
+          callback(resp);
+      },
+      [](const DrogonDbException &e) {
+          LOG_DEBUG << "error:" << e.base().what();
+      }
+    );
 }
