@@ -22,6 +22,4 @@ class JobsController:public drogon::HttpController<JobsController>
     void newJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Job &&pNewJob) const;
 		void updateJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pJobId, Job &&pJobDetails) const;
     void deleteJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pJobId) const;
-
-
 };

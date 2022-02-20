@@ -32,7 +32,6 @@ void JobsController::index(const HttpRequestPtr &req, std::function<void (const 
     callback(resp);
 }
 
-//add definition of your processing function here
 void JobsController::getJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int jobId) const
 {
 		LOG_DEBUG << "getJob jobId: "<< jobId;
@@ -64,14 +63,14 @@ void JobsController::newJob(const HttpRequestPtr &req, std::function<void (const
     callback(resp);
 }
 
-void JobsController::updateJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int employeeId, Job &&pJobDetails) const
+void JobsController::updateJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId, Job &&pJobDetails) const
 {
-		LOG_DEBUG << "updateJob employeeId: " << employeeId;
+		LOG_DEBUG << "updateJob personId: " << personId;
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Job> mp(dbClientPtr);
-		auto emp = mp.findBy(Criteria(Job::Cols::_id, CompareOperator::EQ, employeeId))[0];
+		auto emp = mp.findBy(Criteria(Job::Cols::_id, CompareOperator::EQ, personId))[0];
 
 		if (pJobDetails.getTitle() != nullptr) {
 				emp.setTitle(pJobDetails.getValueOfTitle());
@@ -86,14 +85,14 @@ void JobsController::updateJob(const HttpRequestPtr &req, std::function<void (co
     callback(resp);
 }
 
-void JobsController::deleteJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int employeeId) const
+void JobsController::deleteJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
 {
-		LOG_DEBUG << "deleteJob, employeeId: ";
+		LOG_DEBUG << "deleteJob, personId: ";
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Job> mp(dbClientPtr);
-		mp.deleteBy(Criteria(Job::Cols::_id, CompareOperator::EQ, employeeId));
+		mp.deleteBy(Criteria(Job::Cols::_id, CompareOperator::EQ, personId));
 
     Json::Value ret;
     ret["result"] = "OK";
