@@ -1,0 +1,4 @@
+docker run --name postgres -e POSTGRES_PASSWORD=password -d postgres
+pgcli 'postgresql://postgres:password@127.0.0.1:5432/sample'
+
+psql -h localhost -U postgres -d postdata -f D:\Backup\database.sql
