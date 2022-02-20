@@ -24,8 +24,8 @@ add_executable(${PROJECT_NAME} org_chart.cc)
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
 # to add drogon 
-# add_subdirectory(drogon) 
-# target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
+add_subdirectory(third_party/drogon) 
+target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
 #
 # and comment out the following lines
 find_package(Drogon CONFIG REQUIRED)
