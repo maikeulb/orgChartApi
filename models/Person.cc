@@ -6,6 +6,8 @@
  */
 
 #include "Person.h"
+#include "Department.h"
+#include "Job.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -1303,4 +1305,68 @@ bool Person::validJsonOfField(size_t index,
             break;
     }
     return true;
+}
+void Person::getDepartment(const DbClientPtr &clientPtr,
+                            const std::function<void(Department)> &rcb,
+                            const ExceptionCallback &ecb) const
+{
+    const static std::string sql = "select * from departments where id = $1";
+    *clientPtr << sql
+               << *departmentId_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Department(r[0]));
+                    }
+               }
+               >> ecb;
+}
+void Person::getJob(const DbClientPtr &clientPtr,
+                     const std::function<void(Job)> &rcb,
+                     const ExceptionCallback &ecb) const
+{
+    const static std::string sql = "select * from jobs where id = $1";
+    *clientPtr << sql
+               << *jobId_
+               >> [rcb = std::move(rcb), ecb](const Result &r){
+                    if (r.size() == 0)
+                    {
+                        ecb(UnexpectedRows("0 rows found"));
+                    }
+                    else if (r.size() > 1)
+                    {
+                        ecb(UnexpectedRows("Found more than one row"));
+                    }
+                    else
+                    {
+                        rcb(Job(r[0]));
+                    }
+               }
+               >> ecb;
+}
+void Person::getPersons(const DbClientPtr &clientPtr,
+                         const std::function<void(std::vector<Person>)> &rcb,
+                         const ExceptionCallback &ecb) const
+{
+    const static std::string sql = "select * from persons where manager_id = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb)](const Result &r){
+                   std::vector<Person> ret;
+                   ret.reserve(r.size());
+                   for (auto const &row : r)
+                   {
+                       ret.emplace_back(Person(row));
+                   }
+                   rcb(ret);
+               }
+               >> ecb;
 }

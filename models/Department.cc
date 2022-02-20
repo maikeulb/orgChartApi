@@ -6,6 +6,7 @@
  */
 
 #include "Department.h"
+#include "Person.h"
 #include <drogon/utils/Utilities.h>
 #include <string>
 
@@ -482,4 +483,22 @@ bool Department::validJsonOfField(size_t index,
             break;
     }
     return true;
+}
+void Department::getPersons(const DbClientPtr &clientPtr,
+                             const std::function<void(std::vector<Person>)> &rcb,
+                             const ExceptionCallback &ecb) const
+{
+    const static std::string sql = "select * from persons where department_id = $1";
+    *clientPtr << sql
+               << *id_
+               >> [rcb = std::move(rcb)](const Result &r){
+                   std::vector<Person> ret;
+                   ret.reserve(r.size());
+                   for (auto const &row : r)
+                   {
+                       ret.emplace_back(Person(row));
+                   }
+                   rcb(ret);
+               }
+               >> ecb;
 }

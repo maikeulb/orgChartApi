@@ -36,6 +36,7 @@ namespace drogon_model
 {
 namespace org_chart
 {
+class Person;
 
 class Job
 {
@@ -119,6 +120,9 @@ class Job
     Json::Value toJson() const;
     Json::Value toMasqueradedJson(const std::vector<std::string> &pMasqueradingVector) const;
     /// Relationship interfaces
+    void getPersons(const drogon::orm::DbClientPtr &clientPtr,
+                    const std::function<void(std::vector<Person>)> &rcb,
+                    const drogon::orm::ExceptionCallback &ecb) const;
   private:
     friend drogon::orm::Mapper<Job>;
 #ifdef __cpp_impl_coroutine
