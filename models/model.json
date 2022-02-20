@@ -8,13 +8,13 @@
     //port: server port, 5432 by default;
     "port": 5432,
     //dbname: Database name;
-    "dbname": "",
+    "dbname": "org_chart",
     //schema: valid for postgreSQL, "public" by default;
     "schema": "public",
     //user: User name
-    "user": "",
+    "user": "postgres",
     //password or passwd: Password
-    "password": "",
+    "password": "password",
     //client_encoding: The character set used by drogon_ctl. it is empty string by default which 
     //means use the default character set.
     //"client_encoding": "",

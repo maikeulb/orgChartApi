@@ -55,11 +55,11 @@
             //port: Server port, 5432 by default
             "port": 5432,
             //dbname: Database name
-            "dbname": "test",
+            "dbname": "org_chart",
             //user: 'postgres' by default
-            "user": "",
+            "user": "postgres",
             //passwd: '' by default
-            "passwd": "",
+            "passwd": "password",
             //is_fast: false by default, if it is true, the client is faster but user can't call
             //any synchronous interface of it.
             "is_fast": false,
