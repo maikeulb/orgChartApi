@@ -15,14 +15,14 @@ namespace drogon {
     }
 }
 
-void JobsController::index(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
+void JobsController::getAllJobs(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int offset, int limit) const
 {
-    LOG_DEBUG << "index";
+    LOG_DEBUG << "getAllJobs" << " offset, " << offset << " limit, " << limit;
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Job> mp(dbClientPtr);
-    auto jobs = mp.orderBy(Job::Cols::_id).limit(25).offset(0).findAll();
+    auto jobs = mp.orderBy(Job::Cols::_id).limit(limit).offset(offset).findAll();
 
     Json::Value ret;
     for (auto j : jobs) {
@@ -121,7 +121,7 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
             callback(resp);
         },
         [](const DrogonDbException &e) {
-            LOG_DEBUG << "error:" << e.base().what();
+            LOG_ERROR << "error:" << e.base().what();
         }
     );
 }

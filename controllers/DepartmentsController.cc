@@ -15,14 +15,14 @@ namespace drogon {
     }
 }
 
-void DepartmentsController::index(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
+void DepartmentsController::getAllDepartments(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int offset, int limit) const
 {
-    LOG_DEBUG << "index";
+    LOG_DEBUG << "getAllDepartments" << " offset, " << offset << " limit, " << limit;
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Department> mp(dbClientPtr);
-    auto departments = mp.orderBy(Department::Cols::_id).limit(25).offset(0).findAll();
+    auto departments = mp.orderBy(Department::Cols::_id).limit(limit).offset(offset).findAll();
 
     Json::Value ret;
     for (auto d : departments) {
@@ -121,7 +121,7 @@ void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std:
           callback(resp);
       },
       [](const DrogonDbException &e) {
-          LOG_DEBUG << "error:" << e.base().what();
+          LOG_ERROR << "error:" << e.base().what();
       }
     );
 }

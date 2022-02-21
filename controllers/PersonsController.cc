@@ -14,14 +14,15 @@ namespace drogon {
     }
 }
 
-void PersonsController::index(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
+// add offset and limit as optional parameters
+void PersonsController::getAllPersons(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int offset, int limit) const
 {
-    LOG_DEBUG << "index";
+    LOG_DEBUG << "index" << " offset, " << offset << " limit, " << limit;
 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Person> mp(dbClientPtr);
-    auto persons = mp.orderBy(Person::Cols::_id).limit(25).offset(0).findAll();
+    auto persons = mp.orderBy(Person::Cols::_id).limit(limit).offset(offset).findAll();
 
     Json::Value ret;
     for (auto p : persons) {
@@ -39,7 +40,15 @@ void PersonsController::getPerson(const HttpRequestPtr &req, std::function<void 
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Person> mp(dbClientPtr);
-    auto person = mp.findOne(Criteria(Person::Cols::_id, CompareOperator::EQ, personId));
+    auto person = mp.findOne(Criteria(Person::Cols::_id, CompareOperator::EQ, personId)); // person
+
+    // void getDepartment(const DbClientPtr &dbClientPtr, 
+                  // const std::function<void(Products)> &rcb,
+                  // const ExceptionCallback &ecb) const;
+
+    // void getJob(const DbClientPtr &dbClientPtr, 
+                  // const std::function<void(Products)> &rcb,
+                  // const ExceptionCallback &ecb) const;
 
     Json::Value ret;
     ret = person.toJson(); 
@@ -132,7 +141,7 @@ void PersonsController::getDirectReports(const HttpRequestPtr &req, std::functio
           callback(resp);
       },
       [](const DrogonDbException &e) {
-          LOG_DEBUG << "error:" << e.base().what();
+          LOG_ERROR << "error:" << e.base().what();
       }
     );
 }
