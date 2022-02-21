@@ -2,6 +2,8 @@
 
 #include <drogon/HttpController.h>
 #include "../models/Person.h"
+#include "../models/Department.h"
+#include "../models/Job.h"
 
 using namespace drogon;
 using namespace drogon_model::org_chart;
@@ -20,8 +22,22 @@ class PersonsController:public drogon::HttpController<PersonsController>
 
     void getAllPersons(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int offset, int limit) const;
     void getPerson(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
-    void newPerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pNewPerson) const;
-		void updatePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId, Person &&pPersonDetails) const;
+    void newPerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pPerson) const;
+		void updatePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId, Person &&pPerson) const;
     void deletePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
     void getDirectReports(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
+
+  private:
+    struct PersonDetails {
+        int id;
+        std::string first_name;
+        std::string last_name;
+        trantor::Date hire_date;
+        Json::Value manager;
+        Json::Value department;
+        Json::Value job;
+        PersonDetails() {};
+        explicit PersonDetails(const Person &person, const Person &manager, const Department &department, const Job &job);
+        auto toJson() -> Json::Value;
+    };
 };

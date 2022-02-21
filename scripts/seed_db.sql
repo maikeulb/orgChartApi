@@ -16,7 +16,7 @@ ON CONFLICT ON CONSTRAINT departments_pkey DO NOTHING;
 INSERT INTO
     persons(id, job_id, department_id, manager_id, first_name, last_name, hire_date)
 VALUES
-    -- (1, 1, 1, 1, 'Sabryna', 'Peers', '2014-02-01'),
+    (1, 1, 1, 1, 'Sabryna', 'Peers', '2014-02-01'),
     (2, 2, 1, 1, 'Tayler', 'Shantee', '2018-04-07'),
     (3, 2, 1, 1, 'Madonna', 'Axl', '2018-03-08'),
     (4, 4, 1, 2, 'Marcia', 'Stuart', '2020-01-11'),

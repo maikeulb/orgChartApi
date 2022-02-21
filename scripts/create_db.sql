@@ -9,10 +9,10 @@ CREATE TABLE departments (
 );
 
 CREATE TABLE persons (
-    id SERIAL PRIMARY KEY, 
-    job_id int,
-    department_id int, 
-    manager_id int,
+    id SERIAL PRIMARY KEY,
+    job_id int NOT NULL,
+    department_id int NOT NULL,
+    manager_id int NOT NULL,
     first_name VARCHAR(50) UNIQUE NOT NULL,
     last_name VARCHAR(50) UNIQUE NOT NULL,
     hire_date DATE UNIQUE NOT NULL,

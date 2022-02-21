@@ -9,119 +9,154 @@ namespace drogon {
     template<>
     inline Department fromRequest(const HttpRequest &req) {
         auto jsonPtr = req.getJsonObject();
-        auto jsonVal = (*jsonPtr);
-        auto department = Department(jsonVal);
+        auto json = *jsonPtr;
+        auto department = Department(json);
         return department;
     }
 }
 
 void DepartmentsController::getAllDepartments(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int offset, int limit) const
 {
-    LOG_DEBUG << "getAllDepartments" << " offset, " << offset << " limit, " << limit;
+    LOG_DEBUG << "getAllDepartments" << " offset: " << offset << " limit: " << limit;
+    try {
+        auto dbClientPtr = drogon::app().getDbClient();
 
-    auto dbClientPtr = drogon::app().getDbClient();
+        Mapper<Department> mp(dbClientPtr);
+        auto departments = mp.orderBy(Department::Cols::_id).offset(offset).limit(limit).findFutureAll().get();
 
-    Mapper<Department> mp(dbClientPtr);
-    auto departments = mp.orderBy(Department::Cols::_id).limit(limit).offset(offset).findAll();
-
-    Json::Value ret;
-    for (auto d : departments) {
-        ret.append(d.toJson());
+        Json::Value ret;
+        for (auto d : departments) {
+            ret.append(d.toJson());
+        }
+        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        resp->setStatusCode(HttpStatusCode::k200OK);
+        callback(resp);
+    } catch (const DrogonDbException & e) {
+        LOG_ERROR << e.base().what();
+        auto resp = HttpResponse::newHttpResponse();
+        resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+        callback(resp);
     }
-
-    auto resp=HttpResponse::newHttpJsonResponse(ret);
-    callback(resp);
 }
 
 void DepartmentsController::getDepartment(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId) const
 {
     LOG_DEBUG << "getDepartment departmentId: "<< departmentId;
+    try {
+        auto dbClientPtr = drogon::app().getDbClient();
 
-    auto dbClientPtr = drogon::app().getDbClient();
+        Mapper<Department> mp(dbClientPtr);
+        auto department = mp.findFutureByPrimaryKey(departmentId).get();
 
-    Mapper<Department> mp(dbClientPtr);
-    auto dep = mp.findOne(Criteria(Department::Cols::_id, CompareOperator::EQ, departmentId));
-
-    Json::Value ret;
-    ret = dep.toJson(); 
-
-    auto resp=HttpResponse::newHttpJsonResponse(ret);
-    callback(resp);
+        Json::Value ret = department.toJson(); 
+        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        resp->setStatusCode(HttpStatusCode::k200OK);
+        callback(resp);
+    } catch (const DrogonDbException & e) {
+        LOG_ERROR << e.base().what();
+        auto resp = HttpResponse::newHttpResponse();
+        resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+        callback(resp);
+    }
 }
 
-void DepartmentsController::newDepartment(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Department &&pNewDepartment) const
+void DepartmentsController::newDepartment(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Department &&pDepartment) const
 {
     LOG_DEBUG << "newDepartment";
+    try {
+        auto dbClientPtr = drogon::app().getDbClient();
 
-    auto dbClientPtr = drogon::app().getDbClient();
+        Mapper<Department> mp(dbClientPtr);
+        auto department = mp.insertFuture(pDepartment).get();
 
-    Mapper<Department> mp(dbClientPtr);
-    mp.insert(pNewDepartment);
-
-    Json::Value ret;
-    ret["result"] = pNewDepartment.toJson();
-    auto resp=HttpResponse::newHttpJsonResponse(ret);
-    callback(resp);
-}
-
-void DepartmentsController::updateDepartment(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId, Department &&pDepartmentDetails) const
-{
-    LOG_DEBUG << "updateDepartment personId: " << personId;
-
-    auto dbClientPtr = drogon::app().getDbClient();
-
-    Mapper<Department> mp(dbClientPtr);
-    auto dep = mp.findOne(Criteria(Department::Cols::_id, CompareOperator::EQ, personId));
-
-    if (pDepartmentDetails.getName() != nullptr) {
-        dep.setName(pDepartmentDetails.getValueOfName());
+        Json::Value ret = department.toJson();
+        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        resp->setStatusCode(HttpStatusCode::k201Created);
+        callback(resp);
+    } catch (const DrogonDbException & e) {
+        LOG_ERROR << e.base().what();
+        auto resp = HttpResponse::newHttpResponse();
+        resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+        callback(resp);
     }
-
-    mp.update(dep);
-
-    Json::Value ret;
-    ret["result"] = dep.toJson();
-
-    auto resp=HttpResponse::newHttpJsonResponse(ret);
-    callback(resp);
 }
 
-void DepartmentsController::deleteDepartment(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
+void DepartmentsController::updateDepartment(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId, Department &&pDepartmentDetails) const
 {
-    LOG_DEBUG << "deleteDepartment, personId: ";
+    LOG_DEBUG << "updateDepartment departmentId: " << departmentId;
+    try {
+        auto dbClientPtr = drogon::app().getDbClient();
 
-    auto dbClientPtr = drogon::app().getDbClient();
+        Mapper<Department> mp(dbClientPtr);
+        auto department = mp.findFutureByPrimaryKey(departmentId).get();
 
-    Mapper<Department> mp(dbClientPtr);
-    mp.deleteBy(Criteria(Department::Cols::_id, CompareOperator::EQ, personId));
+        if (pDepartmentDetails.getName() != nullptr) {
+            department.setName(pDepartmentDetails.getValueOfName());
+        }
 
-    Json::Value ret;
-    ret["result"] = "OK";
+        mp.update(department);
 
-    auto resp=HttpResponse::newHttpJsonResponse(ret);
-    callback(resp);
+        Json::Value ret = department.toJson();
+        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        resp->setStatusCode(HttpStatusCode::k204NoContent);
+        callback(resp);
+    } catch (const DrogonDbException & e) {
+        LOG_ERROR << e.base().what();
+        auto resp = HttpResponse::newHttpResponse();
+        resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+        callback(resp);
+    }
+}
+
+void DepartmentsController::deleteDepartment(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId) const
+{
+    LOG_DEBUG << "deleteDepartment departmentId: ";
+    try {
+        auto dbClientPtr = drogon::app().getDbClient();
+
+        Mapper<Department> mp(dbClientPtr);
+        mp.deleteFutureBy(Criteria(Person::Cols::_id, CompareOperator::EQ, departmentId)).get();
+
+        auto resp=HttpResponse::newHttpResponse();
+        resp->setStatusCode(HttpStatusCode::k204NoContent);
+        callback(resp);
+    } catch (const DrogonDbException & e) {
+        LOG_ERROR << e.base().what();
+        auto resp = HttpResponse::newHttpResponse();
+        resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+        callback(resp);
+    }
 }
 
 void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId) const
 {
     LOG_DEBUG << "getDepartmentPersons departmentId: "<< departmentId;
-
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Department> mp(dbClientPtr);
-    auto dep = mp.findOne(Criteria(Department::Cols::_id, CompareOperator::EQ, departmentId));
+    auto department = mp.findFutureByPrimaryKey(departmentId).get();
 
-    dep.getPersons(dbClientPtr, 
+    department.getPersons(dbClientPtr, 
       [callback](const std::vector<Person> persons) {
-          Json::Value ret;
-          for (auto p : persons) {
-              ret.append(p.toJson());
+          if (persons.empty()) {
+              auto resp = HttpResponse::newHttpResponse();
+              resp->setStatusCode(HttpStatusCode::k404NotFound);
+              callback(resp);
+          } else {
+              Json::Value ret;
+              for (auto p : persons) {
+                  ret.append(p.toJson());
+              }
+              auto resp=HttpResponse::newHttpJsonResponse(ret);
+              resp->setStatusCode(HttpStatusCode::k200OK);
+              callback(resp);
           }
-          auto resp=HttpResponse::newHttpJsonResponse(ret);
-          callback(resp);
       },
-      [](const DrogonDbException &e) {
-          LOG_ERROR << "error:" << e.base().what();
+      [callback](const DrogonDbException &e) {
+          LOG_ERROR << e.base().what();
+          auto resp = HttpResponse::newHttpResponse();
+          resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+          callback(resp);
       }
     );
 }

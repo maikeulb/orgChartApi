@@ -18,10 +18,10 @@ class JobsController:public drogon::HttpController<JobsController>
       ADD_METHOD_TO(JobsController::getJobPersons,"/jobs/{1}/persons", Get); 
     METHOD_LIST_END
 
+    void newJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Job &&pJob) const;
     void getAllJobs(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int offset, int limit) const;
     void getJob(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int pJobId) const;
-    void newJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Job &&pNewJob) const;
-		void updateJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pJobId, Job &&pJobDetails) const;
+		void updateJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pJobId, Job &&pJob) const;
     void deleteJob(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pJobId) const;
     void getJobPersons(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int jobId) const;
 };
