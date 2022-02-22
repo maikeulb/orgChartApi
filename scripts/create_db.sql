@@ -22,3 +22,8 @@ CREATE TABLE persons (
     CONSTRAINT fk_manager FOREIGN KEY(manager_id) REFERENCES persons(id) ON DELETE SET NULL
 );
 
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL
+    password VARCHAR UNIQUE NOT NULL
+);

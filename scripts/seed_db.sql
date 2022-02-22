@@ -28,4 +28,9 @@ VALUES
     (10, 4, 2, 8, 'Leon', 'JayLee', '2022-02-17'),
     (11, 4, 2, 8, 'Kaylie', 'Elyse', '2021-01-18'),
     (12, 4, 2, 8, 'Yancey', 'Trenton', '2022-03-02')
-ON CONFLICT ON CONSTRAINT persons_pkey DO NOTHING; 
+ON CONFLICT ON CONSTRAINT persons_pkey DO NOTHING;
+
+INSERT INTO
+    users(id, username, password)
+VALUES
+    (1, 'admin', 'password');
