@@ -20,8 +20,8 @@ void JobsController::get(const HttpRequestPtr &req, std::function<void (const Ht
     auto offset = req->getOptionalParameter<int>("offset").value_or(0);
     auto limit = req->getOptionalParameter<int>("limit").value_or(25);
     auto sortField = req->getOptionalParameter<std::string>("sort_field").value_or("id");
-    auto sortOrder = req->getOptionalParameter<std::string>("sort_order").value_or("ASC");
-    auto sortOrderEnum = sortOrder == "ASC" ? SortOrder::ASC : SortOrder::DESC;
+    auto sortOrder = req->getOptionalParameter<std::string>("sort_order").value_or("asc");
+    auto sortOrderEnum = sortOrder == "asc" ? SortOrder::ASC : SortOrder::DESC;
 
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -131,7 +131,6 @@ void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (co
         if (pJobDetails.getTitle() != nullptr) {
             job.setTitle(pJobDetails.getValueOfTitle());
         }
-        
         mp.update(job);
 
         Json::Value ret = job.toJson();
