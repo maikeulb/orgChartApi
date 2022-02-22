@@ -19,9 +19,9 @@ namespace drogon {
     }
 }
 
-void PersonsController::getAllPersons(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
+void PersonsController::get(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
 {
-    LOG_DEBUG << "getAllDepartments";
+    LOG_DEBUG << "get";
     auto offset = req->getOptionalParameter<int>("offset").value_or(0);
     auto limit = req->getOptionalParameter<int>("limit").value_or(25);
     auto sortField = req->getOptionalParameter<std::string>("sort_field").value_or("id");
@@ -58,9 +58,9 @@ void PersonsController::getAllPersons(const HttpRequestPtr &req, std::function<v
     }
 }
 
-void PersonsController::getPerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
+void PersonsController::getOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
 {
-    LOG_DEBUG << "getPerson personId: "<< personId;
+    LOG_DEBUG << "getOne personId: "<< personId;
     try {
         auto dbClientPtr = drogon::app().getDbClient();
 
@@ -98,9 +98,9 @@ void PersonsController::getPerson(const HttpRequestPtr &req, std::function<void 
     }
 }
 
-void PersonsController::newPerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pPerson) const
+void PersonsController::createOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pPerson) const
 {
-    LOG_DEBUG << "newPerson";
+    LOG_DEBUG << "createOne";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
 
@@ -121,9 +121,9 @@ void PersonsController::newPerson(const HttpRequestPtr &req, std::function<void 
     }
 }
 
-void PersonsController::updatePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId, Person &&pPerson) const
+void PersonsController::updateOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId, Person &&pPerson) const
 {
-    LOG_DEBUG << "updatePerson personId: " << personId;
+    LOG_DEBUG << "updateOne personId: " << personId;
     try {
         auto dbClientPtr = drogon::app().getDbClient();
 
@@ -171,9 +171,9 @@ void PersonsController::updatePerson(const HttpRequestPtr &req, std::function<vo
     }
 }
 
-void PersonsController::deletePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
+void PersonsController::deleteOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int personId) const
 {
-    LOG_DEBUG << "deletePerson personId: ";
+    LOG_DEBUG << "deleteOne personId: ";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
 

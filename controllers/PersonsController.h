@@ -12,19 +12,19 @@ class PersonsController:public drogon::HttpController<PersonsController>
 {
   public:
     METHOD_LIST_BEGIN
-			ADD_METHOD_TO(PersonsController::newPerson, "/persons", Post); 
-		  ADD_METHOD_TO(PersonsController::getAllPersons,"/persons", Get); 
-		  ADD_METHOD_TO(PersonsController::getPerson,"/persons/{1}", Get);
-      ADD_METHOD_TO(PersonsController::updatePerson,"/persons/{1}", Put);
-      ADD_METHOD_TO(PersonsController::deletePerson,"/persons/{1}", Delete);
-      ADD_METHOD_TO(PersonsController::getDirectReports,"/persons/{1}/reports", Get); 
+			ADD_METHOD_TO(PersonsController::createOne, "/persons", Post);
+		  ADD_METHOD_TO(PersonsController::get,"/persons", Get);
+		  ADD_METHOD_TO(PersonsController::getOne,"/persons/{1}", Get);
+      ADD_METHOD_TO(PersonsController::updateOne,"/persons/{1}", Put);
+      ADD_METHOD_TO(PersonsController::deleteOne,"/persons/{1}", Delete);
+      ADD_METHOD_TO(PersonsController::getDirectReports,"/persons/{1}/reports", Get);
     METHOD_LIST_END
 
-    void getAllPersons(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) const;
-    void getPerson(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
-    void newPerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pPerson) const;
-		void updatePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId, Person &&pPerson) const;
-    void deletePerson(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
+    void get(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) const;
+    void getOne(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
+    void createOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pPerson) const;
+		void updateOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId, Person &&pPerson) const;
+    void deleteOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
     void getDirectReports(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
 
   private:
