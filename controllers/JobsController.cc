@@ -25,7 +25,7 @@ void JobsController::get(const HttpRequestPtr &req, std::function<void (const Ht
 
     try {
         auto dbClientPtr = drogon::app().getDbClient();
-        
+
         Mapper<Job> mp(dbClientPtr);
         auto jobs = mp.orderBy(sortField, sortOrderEnum).offset(offset).limit(limit).findFutureAll().get();
 
@@ -55,7 +55,7 @@ void JobsController::getOne(const HttpRequestPtr &req, std::function<void (const
         Mapper<Job> mp(dbClientPtr);
         Job job;
         try {
-            job = mp.findFutureByPrimaryKey(jobId).get(); 
+            job = mp.findFutureByPrimaryKey(jobId).get();
         } catch (const DrogonDbException & e) {
             Json::Value ret;
             ret["error"] = "resource not found";
@@ -64,7 +64,7 @@ void JobsController::getOne(const HttpRequestPtr &req, std::function<void (const
             callback(resp);
         }
 
-        Json::Value ret = job.toJson(); 
+        Json::Value ret = job.toJson();
         auto resp=HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
@@ -119,7 +119,7 @@ void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (co
         Mapper<Job> mp(dbClientPtr);
         Job job;
         try {
-            job = mp.findFutureByPrimaryKey(jobId).get(); 
+            job = mp.findFutureByPrimaryKey(jobId).get();
         } catch (const DrogonDbException & e) {
             Json::Value ret;
             ret["error"] = "resource not found";
@@ -178,7 +178,7 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
     Mapper<Job> mp(dbClientPtr);
     Job job;
     try {
-        job = mp.findFutureByPrimaryKey(jobId).get(); 
+        job = mp.findFutureByPrimaryKey(jobId).get();
     } catch (const DrogonDbException & e) {
         Json::Value ret;
         ret["error"] = "resource not found";
@@ -187,7 +187,7 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
         callback(resp);
     }
 
-    job.getPersons(dbClientPtr, 
+    job.getPersons(dbClientPtr,
         [callbackPtr](const std::vector<Person> persons) {
            if (persons.empty()) {
               Json::Value ret;

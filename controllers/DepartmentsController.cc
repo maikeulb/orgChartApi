@@ -56,7 +56,7 @@ void DepartmentsController::getOne(const HttpRequestPtr &req, std::function<void
         Mapper<Department> mp(dbClientPtr);
         Department department;
         try {
-            department = mp.findFutureByPrimaryKey(departmentId).get(); 
+            department = mp.findFutureByPrimaryKey(departmentId).get();
         } catch (const DrogonDbException & e) {
             Json::Value ret;
             ret["error"] = "resource not found";
@@ -65,7 +65,7 @@ void DepartmentsController::getOne(const HttpRequestPtr &req, std::function<void
             callback(resp);
         }
 
-        Json::Value ret = department.toJson(); 
+        Json::Value ret = department.toJson();
         auto resp=HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
@@ -111,7 +111,7 @@ void DepartmentsController::updateOne(const HttpRequestPtr &req, std::function<v
         Mapper<Department> mp(dbClientPtr);
         Department department;
         try {
-            department = mp.findFutureByPrimaryKey(departmentId).get(); 
+            department = mp.findFutureByPrimaryKey(departmentId).get();
         } catch (const DrogonDbException & e) {
             Json::Value ret;
             ret["error"] = "resource not found";
@@ -171,7 +171,7 @@ void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std:
     Mapper<Department> mp(dbClientPtr);
     Department department;
     try {
-        department = mp.findFutureByPrimaryKey(departmentId).get(); 
+        department = mp.findFutureByPrimaryKey(departmentId).get();
     } catch (const DrogonDbException & e) {
         Json::Value ret;
         ret["error"] = "resource not found";
@@ -180,7 +180,7 @@ void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std:
         callback(resp);
     }
 
-    department.getPersons(dbClientPtr, 
+    department.getPersons(dbClientPtr,
       [callbackPtr](const std::vector<Person> persons) {
           if (persons.empty()) {
               Json::Value ret;

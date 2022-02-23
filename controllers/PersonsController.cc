@@ -40,8 +40,8 @@ void PersonsController::get(const HttpRequestPtr &req, std::function<void (const
         Json::Value ret;
         for (auto p : persons) {
             auto manager = pmp.findFutureByPrimaryKey(p.getValueOfManagerId());
-            auto department = dmp.findFutureByPrimaryKey(p.getValueOfDepartmentId()); 
-            auto job = jmp.findFutureByPrimaryKey(p.getValueOfJobId()); 
+            auto department = dmp.findFutureByPrimaryKey(p.getValueOfDepartmentId());
+            auto job = jmp.findFutureByPrimaryKey(p.getValueOfJobId());
             PersonDetails personDetails = PersonDetails(p, manager.get(), department.get(), job.get());
             ret.append(personDetails.toJson());
         }
@@ -70,7 +70,7 @@ void PersonsController::getOne(const HttpRequestPtr &req, std::function<void (co
 
         Person person;
         try {
-            person = pmp.findFutureByPrimaryKey(personId).get(); 
+            person = pmp.findFutureByPrimaryKey(personId).get();
         } catch (const DrogonDbException & e) {
             Json::Value ret;
             ret["error"] = "resource not found";
@@ -80,11 +80,11 @@ void PersonsController::getOne(const HttpRequestPtr &req, std::function<void (co
         }
 
         auto manager = pmp.findFutureByPrimaryKey(person.getValueOfManagerId());
-        auto department = dmp.findFutureByPrimaryKey(person.getValueOfDepartmentId()); 
-        auto job = jmp.findFutureByPrimaryKey(person.getValueOfJobId()); 
+        auto department = dmp.findFutureByPrimaryKey(person.getValueOfDepartmentId());
+        auto job = jmp.findFutureByPrimaryKey(person.getValueOfJobId());
         PersonDetails personDetails = PersonDetails(person, manager.get(), department.get(), job.get());
 
-        Json::Value ret = personDetails.toJson(); 
+        Json::Value ret = personDetails.toJson();
         auto resp=HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
@@ -106,7 +106,7 @@ void PersonsController::createOne(const HttpRequestPtr &req, std::function<void 
 
         Mapper<Person> mp(dbClientPtr);
         auto person = mp.insertFuture(pPerson).get();
-        
+
         Json::Value ret = person.toJson();
         auto resp=HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k201Created);
@@ -130,7 +130,7 @@ void PersonsController::updateOne(const HttpRequestPtr &req, std::function<void 
         Mapper<Person> mp(dbClientPtr);
         Person person;
         try {
-            person = mp.findFutureByPrimaryKey(personId).get(); 
+            person = mp.findFutureByPrimaryKey(personId).get();
         } catch (const DrogonDbException & e) {
             Json::Value ret;
             ret["error"] = "resource not found";
@@ -154,7 +154,7 @@ void PersonsController::updateOne(const HttpRequestPtr &req, std::function<void 
         if (pPerson.getLastName() != nullptr) {
           person.setLastName(pPerson.getValueOfLastName());
         }
-        
+
         mp.updateFuture(person).get();
 
         Json::Value ret = person.toJson();
@@ -212,7 +212,7 @@ void PersonsController::getDirectReports(const HttpRequestPtr &req, std::functio
         callback(resp);
     }
 
-    department.getPersons(dbClientPtr, 
+    department.getPersons(dbClientPtr,
       [callbackPtr](const std::vector<Person> persons) {
           if (persons.empty()) {
              Json::Value ret;
