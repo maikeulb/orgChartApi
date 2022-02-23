@@ -165,6 +165,7 @@ void DepartmentsController::deleteOne(const HttpRequestPtr &req, std::function<v
 void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId) const
 {
     LOG_DEBUG << "getDepartmentPersons departmentId: "<< departmentId;
+    auto callbackPtr = std::make_shared<std::function<void(const HttpResponsePtr &)>>(std::move(callback));
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Department> mp(dbClientPtr);
@@ -180,13 +181,13 @@ void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std:
     }
 
     department.getPersons(dbClientPtr, 
-      [callback](const std::vector<Person> persons) {
+      [callbackPtr](const std::vector<Person> persons) {
           if (persons.empty()) {
               Json::Value ret;
               ret["error"] = "resource not found";
               auto resp = HttpResponse::newHttpJsonResponse(ret);
               resp->setStatusCode(HttpStatusCode::k404NotFound);
-              callback(resp);
+              (*callbackPtr)(resp);
           } else {
               Json::Value ret;
               for (auto p : persons) {
@@ -194,16 +195,16 @@ void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std:
               }
               auto resp=HttpResponse::newHttpJsonResponse(ret);
               resp->setStatusCode(HttpStatusCode::k200OK);
-              callback(resp);
+              (*callbackPtr)(resp);
           }
       },
-      [callback](const DrogonDbException &e) {
+      [callbackPtr](const DrogonDbException &e) {
           LOG_ERROR << e.base().what();
           Json::Value ret;
           ret["error"] = "database error";
           auto resp = HttpResponse::newHttpJsonResponse(ret);
           resp->setStatusCode(HttpStatusCode::k500InternalServerError);
-          callback(resp);
+          (*callbackPtr)(resp);
       }
     );
 }

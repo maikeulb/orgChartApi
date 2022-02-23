@@ -197,6 +197,7 @@ void PersonsController::getDirectReports(const HttpRequestPtr &req, std::functio
 {
     LOG_DEBUG << "getDirectReports personId: "<< personId;
 
+    auto callbackPtr = std::make_shared<std::function<void(const HttpResponsePtr &)>>(std::move(callback));
     auto dbClientPtr = drogon::app().getDbClient();
 
     Mapper<Person> mp(dbClientPtr);
@@ -212,13 +213,13 @@ void PersonsController::getDirectReports(const HttpRequestPtr &req, std::functio
     }
 
     department.getPersons(dbClientPtr, 
-      [callback](const std::vector<Person> persons) {
+      [callbackPtr](const std::vector<Person> persons) {
           if (persons.empty()) {
              Json::Value ret;
              ret["error"] = "resource not found";
              auto resp = HttpResponse::newHttpJsonResponse(ret);
              resp->setStatusCode(HttpStatusCode::k404NotFound);
-             callback(resp);
+             (*callbackPtr)(resp);
           } else {
              Json::Value ret;
              for (auto p : persons) {
@@ -226,16 +227,16 @@ void PersonsController::getDirectReports(const HttpRequestPtr &req, std::functio
              }
              auto resp = HttpResponse::newHttpJsonResponse(ret);
              resp->setStatusCode(HttpStatusCode::k200OK);
-             callback(resp);
+             (*callbackPtr)(resp);
           }
       },
-      [callback](const DrogonDbException &e) {
+      [callbackPtr](const DrogonDbException &e) {
           LOG_ERROR << e.base().what();
           Json::Value ret;
           ret["error"] = "database error";
           auto resp = HttpResponse::newHttpJsonResponse(ret);
           resp->setStatusCode(HttpStatusCode::k500InternalServerError);
-          callback(resp);
+          (*callbackPtr)(resp);
       }
     );
 }
