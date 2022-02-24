@@ -1,20 +1,30 @@
 #pragma once
 
 #include <drogon/HttpController.h>
+#include "../models/User.h"
 
 using namespace drogon;
+using namespace drogon::orm;
+using namespace drogon_model::org_chart;
 
 class AuthController : public drogon::HttpController<AuthController>
 {
   public:
     METHOD_LIST_BEGIN
-    // use METHOD_ADD to add your custom processing function here;
-    // METHOD_ADD(AuthController::get, "/{2}/{1}", Get); // path is /AuthController/{arg2}/{arg1}
-    // METHOD_ADD(AuthController::your_method_name, "/{1}/{2}/list", Get); // path is /AuthController/{arg1}/{arg2}/list
-    // ADD_METHOD_TO(AuthController::your_method_name, "/absolute/path/{1}/{2}/list", Get); // path is /absolute/path/{arg1}/{arg2}/list
-
+      ADD_METHOD_TO(AuthController::registerUser, "/auth/register/", Post);
     METHOD_LIST_END
-    // your declaration of processing function maybe like this:
-    // void get(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int p1, std::string p2);
-    // void your_method_name(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, double p1, int p2) const;
+
+    void registerUser(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, User &&pUser) const;
+
+  private:
+    struct UserWithToken {
+        std::string username;
+        std::string password;
+        std::string token;
+        explicit UserWithToken(const User &user);
+        Json::Value toJson();
+    };
+
+    bool areFieldsValid(const User &user) const;
+    bool isUserTaken(const User &user, Mapper<User>& mp) const;
 };
