@@ -12,7 +12,7 @@ class PersonsController:public drogon::HttpController<PersonsController>
 {
   public:
     METHOD_LIST_BEGIN
-		  ADD_METHOD_TO(PersonsController::get,"/persons", Get);
+		  ADD_METHOD_TO(PersonsController::get,"/persons", Get, "LoginFilter");
 		  ADD_METHOD_TO(PersonsController::getOne,"/persons/{1}", Get);
 			ADD_METHOD_TO(PersonsController::createOne, "/persons", Post);
       ADD_METHOD_TO(PersonsController::updateOne,"/persons/{1}", Put);

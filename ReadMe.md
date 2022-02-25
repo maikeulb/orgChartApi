@@ -2,11 +2,6 @@
 
 Restful API built using [Drogon](https://github.com/drogonframework/drogon).
 
-Dependencies
-----------
-* Drogon
-* PostgreSQL
-
 Endpoints
 ---------
 

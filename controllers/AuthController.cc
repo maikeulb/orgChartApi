@@ -1,6 +1,7 @@
 #include <third_party/libbcrypt/include/bcrypt/BCrypt.hpp>
 #include "AuthController.h"
 #include "../models/User.h"
+#include "../utils/JwtService.h"
 
 using namespace drogon::orm;
 using namespace drogon_model::org_chart;
@@ -8,7 +9,6 @@ using namespace drogon_model::org_chart;
 namespace drogon {
     template<>
     inline User fromRequest(const HttpRequest &req) {
-        LOG_DEBUG << req.getPath();
         auto jsonPtr = req.getJsonObject();
         auto json = *jsonPtr;
         auto user = User(json);
@@ -43,7 +43,6 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
 
         auto newUser = pUser;
         newUser.setPassword(BCrypt::generateHash(newUser.getValueOfPassword()));
-        LOG_DEBUG << newUser.toJson().toStyledString();
         mp.insertFuture(newUser).get();
 
         auto userWithToken = AuthController::UserWithToken(newUser);
@@ -98,9 +97,8 @@ void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (co
         }
 
         auto userWithToken = AuthController::UserWithToken(user[0]);
-        auto json = Json::Value();
-        json["user"] = userWithToken.toJson();
-        auto resp = HttpResponse::newHttpJsonResponse(json);
+        auto ret = userWithToken.toJson();
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
@@ -125,7 +123,7 @@ bool AuthController::isPasswordValid(const std::string &text, const std::string 
 }
 
 AuthController::UserWithToken::UserWithToken(const User &user) {
-    token = "TOKEN";
+    token = JwtService::generateFromUser(user);
     username = user.getValueOfUsername();
 }
 
