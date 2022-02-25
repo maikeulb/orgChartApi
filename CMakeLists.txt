@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(orgChart CXX)
+project(org_chart CXX)
 
 include(CheckIncludeFileCXX)
 
@@ -25,6 +25,10 @@ add_executable(${PROJECT_NAME} org_chart.cc)
 # https://github.com/drogonframework/drogon
 add_subdirectory(third_party/drogon)
 target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
+
+# https://github.com/Thalhammer/jwt-cpp
+add_subdirectory(third_party/jwt-cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE jwt-cpp)
 
 # https://github.com/trusch/libbcrypt
 add_subdirectory(third_party/libbcrypt)
