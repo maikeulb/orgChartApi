@@ -1,6 +1,6 @@
 # Org Chart Api
 
-Restful API using [Drogon](https://github.com/drogonframework/drogon), a C++14/17-based HTTP application framework.
+Restful API built using [Drogon](https://github.com/drogonframework/drogon).
 
 Dependencies
 ----------
@@ -13,9 +13,9 @@ Endpoints
 ### Persons
 | Method     | URI                                   | Action                                    |
 |------------|---------------------------------------|-------------------------------------------|
-| `GET`      | `/persons?limit={}&offset={}&sort_field={}&sort_order={}`                | `Retrieve all persons`    |
+| `GET`      | `/persons?limit={}&offset={}&sort_field={}&sort_order={}` | `Retrieve all persons`    |
 | `GET`      | `/persons/{id}`                       | `Retrieve person`                         |
-| `GET`      | `/persons/{id}/reports`               | `Retrieve person direct reports` |
+| `GET`      | `/persons/{id}/reports`               | `Retrieve person direct reports`          |
 | `POST`     | `/persons`                            | `Create person`                           |
 | `PUT`      | `/persons/{id}`                       | `Update person`                           |
 | `DELETE`   | `/persons/{id}          `             | `Delete person`                           |
@@ -23,9 +23,9 @@ Endpoints
 ### Departments
 | Method     | URI                                   | Action                                    |
 |------------|---------------------------------------|-------------------------------------------|
-| `GET`      | `/departments?limit={}&offset={}&sort_field={}&sort_order={}`               | `Retrieve all departments`     |
+| `GET`      | `/departments?limit={}&offset={}&sort_field={}&sort_order={}`   | `Retrieve all departments`     |
 | `GET`      | `/departments/{id}`                   | `Retrieve department`                     |
-| `GET`      | `/departments/{id}/persons`           | `Retrieve department persons`  |
+| `GET`      | `/departments/{id}/persons`           | `Retrieve department persons`             |
 | `POST`     | `/departments`                        | `Create department`                       |
 | `PUT`      | `/departments/{id}`                   | `Update department`                       |
 | `DELETE`   | `/departments/{id}`                   | `Delete department`                       |
@@ -33,26 +33,18 @@ Endpoints
 ### Jobs
 | Method     | URI                                   | Action                                    |
 |------------|---------------------------------------|-------------------------------------------|
-| `GET`      | `/jobs?limit={}&offset={}&sort_fields={}&sort_order={}`                | `Retrieve all jobs`     |
+| `GET`      | `/jobs?limit={}&offset={}&sort_fields={}&sort_order={}` | `Retrieve all jobs`     |
 | `GET`      | `/jobs/{id}`                          | `Retrieve job`                            |
-| `GET`      | `/job/{id}/persons`                   | `Retrieve job persons`  |
+| `GET`      | `/jobs/{id}/persons`                  | `Retrieve job persons`                    |
 | `POST`     | `/jobs`                               | `Create job`                              |
 | `PUT`      | `/jobs/{id}`                          | `Update job`                              |
 | `DELETE`   | `/jobs/{id}`                          | `Delete job`                              |
 
-### Users - TODO
+### Auth
 | Method     | URI                                   | Action                                    |
 |------------|---------------------------------------|-------------------------------------------|
-| `GET`      | `/users`                          | `Retrieve all users`                      |
-| `GET`      | `/users/{id}`                     | `Retrieve user`                           |
-| `POST`     | `/users`                          | `Register user `                          |
-| `PUT`      | `/users`                          | `Update users`                            |
-
-### Auth - TODO
-| Method     | URI                                   | Action                                    |
-|------------|---------------------------------------|-------------------------------------------|
-| `POST`     | `/auth/tokens`                        | `Retrieve Token`                          |
-| `DELETE`   | `/auth/tokens`                        | `Revoke token `                           |
+| `POST`     | `/auth/register`                      | `Register User and obtain JWT token`      |
+| `POST`     | `/auth/login`                         | `Login User `                             |
 
 How to build the project
 ---
