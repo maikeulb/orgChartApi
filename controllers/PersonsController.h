@@ -12,9 +12,9 @@ class PersonsController:public drogon::HttpController<PersonsController>
 {
   public:
     METHOD_LIST_BEGIN
-			ADD_METHOD_TO(PersonsController::createOne, "/persons", Post);
 		  ADD_METHOD_TO(PersonsController::get,"/persons", Get);
 		  ADD_METHOD_TO(PersonsController::getOne,"/persons/{1}", Get);
+			ADD_METHOD_TO(PersonsController::createOne, "/persons", Post);
       ADD_METHOD_TO(PersonsController::updateOne,"/persons/{1}", Put);
       ADD_METHOD_TO(PersonsController::deleteOne,"/persons/{1}", Delete);
       ADD_METHOD_TO(PersonsController::getDirectReports,"/persons/{1}/reports", Get);
@@ -38,6 +38,6 @@ class PersonsController:public drogon::HttpController<PersonsController>
         Json::Value job;
         PersonDetails() {};
         explicit PersonDetails(const Person &person, const Person &manager, const Department &department, const Job &job);
-        auto toJson() -> Json::Value;
+        Json::Value toJson();
     };
 };

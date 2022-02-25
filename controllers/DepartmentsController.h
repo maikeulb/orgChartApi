@@ -10,9 +10,9 @@ class DepartmentsController:public drogon::HttpController<DepartmentsController>
 {
   public:
     METHOD_LIST_BEGIN
-			ADD_METHOD_TO(DepartmentsController::createOne, "/departments", Post);
 		  ADD_METHOD_TO(DepartmentsController::get,"/departments", Get);
 		  ADD_METHOD_TO(DepartmentsController::getOne,"/departments/{1}", Get);
+			ADD_METHOD_TO(DepartmentsController::createOne, "/departments", Post);
       ADD_METHOD_TO(DepartmentsController::updateOne,"/departments/{1}", Put);
       ADD_METHOD_TO(DepartmentsController::deleteOne,"/departments/{1}", Delete);
       ADD_METHOD_TO(DepartmentsController::getDepartmentPersons,"/departments/{1}/persons", Get);
