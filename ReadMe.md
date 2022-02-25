@@ -1,6 +1,8 @@
 # Org Chart Api
 
-Restful API built using [Drogon](https://github.com/drogonframework/drogon).
+Restful API built using
+[Drogon](https://github.com/drogonframework/drogon).</br>
+Routes are protected using JWT for token-based authorization.
 
 Endpoints
 ---------
@@ -38,7 +40,7 @@ Endpoints
 ### Auth
 | Method     | URI                                   | Action                                    |
 |------------|---------------------------------------|-------------------------------------------|
-| `POST`     | `/auth/register`                      | `Register User and obtain JWT token`      |
+| `POST`     | `/auth/register`                      | `Register user and obtain JWT token`      |
 | `POST`     | `/auth/login`                         | `Login User `                             |
 
 How to build the project
@@ -47,7 +49,7 @@ How to build the project
 See drogon documentation [here](https://github.com/an-tao/drogon/wiki/ENG-02-Installation#System-Requirements)! 
 
 ### Verify Installation
-Confirm the database development environment using 'drogon_ctl -v':
+Confirm the database development environment using `drogon_ctl -v`:
 ```
      _                                                                                                                                                                                                       [0/365]
   __| |_ __ ___   __ _  ___  _ __
@@ -67,7 +69,7 @@ Libraries:
   postgresql: yes  (batch mode: no)
   mariadb: yes
   sqlite3: yes
-  openssl: no
+  openssl: yes
   brotli: yes
   boost: no
   hiredis: no
@@ -95,11 +97,30 @@ cmake ..
 make
 ```
 ### Run
-Make the necessary changes to `config.json` and run the project `./orgChart`
+Make the necessary database changes to `config.json` and run the project `./org_chart`
 
 Usage
 ---------------
-`http get localhost:3000/persons offset=1 limit=25 sort_field=id sort_order=asc`
+1. register user</br>
+`http post localhost:3000/auth/register username="admin" password="password"`
+```
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJleHAiOjE2NDU4MzE2MDcsImlhdCI6MTY0NTgzMTYwNywiaXNzIjoiYXV0aDAiLCJ1c2VyX2lkIjoiMCJ9.8PyNKVTlY6Qy81kXrCXTSD2XRxSKHLxmIELqEmOyFoU",
+    "username": "admin"
+}
+```
+
+2. login user and obtain token (can also obtain token after registering)</br>
+`http post localhost:3000/auth/login username="admin" password="password"`
+```
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJleHAiOjE2NDU4MzE2MDcsImlhdCI6MTY0NTgzMTYwNywiaXNzIjoiYXV0aDAiLCJ1c2VyX2lkIjoiMCJ9.8PyNKVTlY6Qy81kXrCXTSD2XRxSKHLxmIELqEmOyFoU",
+    "username": "admin"
+}
+```
+
+3. access resource using token</br>
+`http --auth-type=bearer --auth="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJleHAiOjE2NDU4MzE2MzYsImlhdCI6MTY0NTgzMTYzNiwiaXNzIjoiYXV0aDAiLCJ1c2VyX2lkIjoiMyJ9.x84yaRyC8sxjfRqeBC9AJW4NUAA2nhDexFUh3lImF50" get localhost:3000/persons offset=1 limit=25 sort_field=id sort_order=asc`
 ```
 [
    {
@@ -174,3 +195,9 @@ Usage
 ...
 ]
 ```
+
+### Troubleshooting
+* Ensure that openssl is installed correctly (check `drogon_ctl -v`) and point cmake to the correct directory. </br>
+  `cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl`
+* If you're using a LSP, export `compile_commands.json` </br>
+  `cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DCMAKE_EXPORT_COMPILE_COMMANDS=`
