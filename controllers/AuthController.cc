@@ -1,3 +1,4 @@
+#include <third_party/libbcrypt/include/bcrypt/BCrypt.hpp>
 #include "AuthController.h"
 #include "../models/User.h"
 
@@ -7,8 +8,9 @@ using namespace drogon_model::org_chart;
 namespace drogon {
     template<>
     inline User fromRequest(const HttpRequest &req) {
+        LOG_DEBUG << req.getPath();
         auto jsonPtr = req.getJsonObject();
-        auto json = (*jsonPtr)["user"];
+        auto json = *jsonPtr;
         auto user = User(json);
         return user;
     }
@@ -30,7 +32,7 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
             return;
         }
 
-        if (!isUserTaken(pUser, mp)) {
+        if (!isUserAvailable(pUser, mp)) {
             Json::Value ret;
             ret["error"] = "username is taken";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
@@ -40,6 +42,7 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
         }
 
         auto newUser = pUser;
+        newUser.setPassword(BCrypt::generateHash(newUser.getValueOfPassword()));
         LOG_DEBUG << newUser.toJson().toStyledString();
         mp.insertFuture(newUser).get();
 
@@ -85,7 +88,7 @@ void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (co
             return;
         }
 
-        if (!isPasswordValid(user[0].getValueOfPassword(), pUser.getValueOfPassword())) {
+        if (!isPasswordValid(pUser.getValueOfPassword(), user[0].getValueOfPassword())) {
             Json::Value ret;
             ret["error"] = "username and password do not match";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
@@ -110,15 +113,15 @@ void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (co
 }
 
 bool AuthController::areFieldsValid(const User &user) const {
-    return user.getUsername() == nullptr || user.getPassword() == nullptr;
+    return user.getUsername() != nullptr && user.getPassword() != nullptr;
 }
 
-bool AuthController::isUserTaken(const User &user, Mapper<User>& mp) const {
-    return !mp.findFutureBy(Criteria(User::Cols::_username, CompareOperator::EQ, user.getValueOfUsername())).get().empty();
+bool AuthController::isUserAvailable(const User &user, Mapper<User>& mp) const {
+    return mp.findFutureBy(Criteria(User::Cols::_username, CompareOperator::EQ, user.getValueOfUsername())).get().empty();
 }
 
-bool AuthController::isPasswordValid(const std::string &hash, const std::string &text) const {
-    return hash == text;
+bool AuthController::isPasswordValid(const std::string &text, const std::string &hash) const {
+    return BCrypt::validatePassword(text, hash);
 }
 
 AuthController::UserWithToken::UserWithToken(const User &user) {
