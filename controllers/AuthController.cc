@@ -123,7 +123,7 @@ bool AuthController::isPasswordValid(const std::string &text, const std::string 
 }
 
 AuthController::UserWithToken::UserWithToken(const User &user) {
-    token = JwtService::generateFromUser(user);
+    token = JwtService::encode("user_id", user.getValueOfId());
     username = user.getValueOfUsername();
 }
 

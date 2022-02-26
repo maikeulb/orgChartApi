@@ -1,7 +1,6 @@
-#include <jwt-cpp/jwt.h>
 #include "JwtService.h"
 
-std::string JwtService::generateFromUser(const User& user) {
+std::string JwtService::encode(const std::string &field, const int value) {
     auto secret = drogon::app().getCustomConfig()["jwt-secret"].asString();
     auto duration = drogon::app().getCustomConfig()["jwt-sessionTime"].asInt();
     auto time = std::chrono::system_clock::now();
@@ -11,20 +10,12 @@ std::string JwtService::generateFromUser(const User& user) {
         .set_type("JWS")
         .set_issued_at(time)
         .set_expires_at(std::chrono::system_clock::from_time_t(expires_at))
-        .set_payload_claim("user_id", jwt::claim(std::to_string(user.getValueOfId())))
+        .set_payload_claim(field, jwt::claim(std::to_string(value)))
         .sign(jwt::algorithm::hs256{secret});
     return token;
 }
 
-optional<int> JwtService::getCurrentUserIdFromRequest(const HttpRequestPtr &req) {
-    if (req->getHeader("Authorization").empty()) {
-        return std::nullopt;
-    }
-    auto token = req->getHeader("Authorization").substr(7);
-    return getUserIdFromJwt(token);
-}
-
-optional<int> JwtService::getUserIdFromJwt(const std::string& token) {
+optional<jwt::decoded_jwt<jwt::traits::kazuho_picojson>> JwtService::decode(const std::string& token) {
     auto secret = drogon::app().getCustomConfig()["jwt-secret"].asString();
     auto verifier = jwt::verify()
         .allow_algorithm(jwt::algorithm::hs256{secret})
@@ -32,8 +23,7 @@ optional<int> JwtService::getUserIdFromJwt(const std::string& token) {
     try {
         auto decoded = jwt::decode(token);
         verifier.verify(decoded);
-        auto id = decoded.get_payload_claim("user_id").as_string();
-        return stoi(id);
+        return decoded;
     } catch (const std::runtime_error &e) {
         LOG_ERROR << e.what();
         return std::nullopt;

@@ -1,17 +1,15 @@
 #pragma once
 
 #include <drogon/drogon.h>
-#include <models/User.h>
+#include <jwt-cpp/jwt.h>
 
 using namespace drogon;
-using namespace drogon::orm;
-using namespace drogon_model::org_chart;
 
 class JwtService
 {
   public:
-    static std::string generateFromUser(const User& user);
-    static std::optional<int> getCurrentUserIdFromRequest(const HttpRequestPtr &req);
-    static std::optional<int> getUserIdFromJwt(const std::string& token);
+    static std::string encode(const std::string &field, const int value);
+    static optional<jwt::decoded_jwt<jwt::traits::kazuho_picojson>> decode(const std::string& token) ;
+  private:
     JwtService() = default;
 };
