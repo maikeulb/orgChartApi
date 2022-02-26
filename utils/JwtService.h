@@ -12,12 +12,6 @@ class JwtService
   public:
     static std::string generateFromUser(const User& user);
     static std::optional<int> getCurrentUserIdFromRequest(const HttpRequestPtr &req);
-    // static int getCurrentUserIdFromRequest(const HttpRequestPtr &req);
     static std::optional<int> getUserIdFromJwt(const std::string& token);
     JwtService() = default;
-
-
-  private:
-    static const std::string secret;
-    static const int duration;
 };

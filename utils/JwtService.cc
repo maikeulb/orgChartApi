@@ -1,12 +1,11 @@
 #include <jwt-cpp/jwt.h>
 #include "JwtService.h"
 
-const std::string JwtService::secret = drogon::app().getCustomConfig()["jwt-secret"].asString();
-const int JwtService::duration = drogon::app().getCustomConfig()["jwt-sessionTime"].asInt();
-
 std::string JwtService::generateFromUser(const User& user) {
+    auto secret = drogon::app().getCustomConfig()["jwt-secret"].asString();
+    auto duration = drogon::app().getCustomConfig()["jwt-sessionTime"].asInt();
     auto time = std::chrono::system_clock::now();
-    auto expires_at = std::chrono::duration_cast<std::chrono::seconds>((time + std::chrono::seconds{duration}).time_since_epoch()).count();
+    auto expires_at = std::chrono::duration_cast<std::chrono::seconds>((time + std::chrono::seconds{(duration ? 30 : 1) * 24}).time_since_epoch()).count();
     auto token = jwt::create()
         .set_issuer("auth0")
         .set_type("JWS")
@@ -26,8 +25,9 @@ optional<int> JwtService::getCurrentUserIdFromRequest(const HttpRequestPtr &req)
 }
 
 optional<int> JwtService::getUserIdFromJwt(const std::string& token) {
+    auto secret = drogon::app().getCustomConfig()["jwt-secret"].asString();
     auto verifier = jwt::verify()
-        .allow_algorithm(jwt::algorithm::hs256{JwtService::secret})
+        .allow_algorithm(jwt::algorithm::hs256{secret})
         .with_issuer("auth0");
     try {
         auto decoded = jwt::decode(token);
