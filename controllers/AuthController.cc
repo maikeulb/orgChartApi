@@ -1,6 +1,5 @@
 #include <third_party/libbcrypt/include/bcrypt/BCrypt.hpp>
 #include "AuthController.h"
-#include "../models/User.h"
 #include "../plugins/JwtPlugin.h"
 
 using namespace drogon::orm;

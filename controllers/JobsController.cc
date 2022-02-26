@@ -1,5 +1,4 @@
 #include "JobsController.h"
-#include "../models/Job.h"
 #include "../models/Person.h"
 
 using namespace drogon::orm;

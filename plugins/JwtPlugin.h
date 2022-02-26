@@ -1,7 +1,7 @@
 #pragma once
 
 #include <drogon/plugins/Plugin.h>
-#include "./Jwt.h"
+#include "Jwt.h"
 
 class JwtPlugin : public drogon::Plugin<JwtPlugin>
 {

@@ -1,7 +1,4 @@
 #include "PersonsController.h"
-#include "../models/Person.h"
-#include "../models/Department.h"
-#include "../models/Job.h"
 
 using namespace drogon::orm;
 using namespace drogon_model::org_chart;

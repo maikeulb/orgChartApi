@@ -1,5 +1,4 @@
 #include "DepartmentsController.h"
-#include "../models/Department.h"
 #include "../models/Person.h"
 
 using namespace drogon::orm;
