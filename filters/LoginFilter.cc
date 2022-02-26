@@ -8,9 +8,11 @@ void LoginFilter::doFilter(const HttpRequestPtr &req, FilterCallback &&fcb, Filt
 {
     try {
         if (req->getHeader("Authorization").empty()) {
-            auto res = drogon::HttpResponse::newHttpResponse();
-            res->setStatusCode(k400BadRequest);
-            fcb(res);
+            Json::Value ret;
+            ret["error"] = "missing Authorization header";
+            auto resp = HttpResponse::newHttpJsonResponse(ret);
+            resp->setStatusCode(k400BadRequest);
+            fcb(resp);
             return;
         }
 
@@ -18,24 +20,17 @@ void LoginFilter::doFilter(const HttpRequestPtr &req, FilterCallback &&fcb, Filt
         auto *jwtPtr = drogon::app().getPlugin<JwtPlugin>();
         auto jwt = jwtPtr->init();
         auto decoded = jwt.decode(token);
-
-        if (!decoded.has_value()) {
-            auto res = drogon::HttpResponse::newHttpResponse();
-            res->setStatusCode(k400BadRequest);
-            fcb(res);
-        }
-
-        if (decoded.value().get_payload_claim("user_id").as_string().empty()) {
-            auto res = drogon::HttpResponse::newHttpResponse();
-            res->setStatusCode(k400BadRequest);
-            fcb(res);
-            return;
-        }
-        auto userId = stoi(decoded.value().get_payload_claim("user_id").as_string());
+        auto userId = stoi(decoded.get_payload_claim("user_id").as_string());
         fccb();
+    } catch (jwt::token_verification_exception &e) {
+        auto resp = drogon::HttpResponse::newHttpResponse();
+        LOG_ERROR << e.what();
+        resp->setStatusCode(k400BadRequest);
+        fcb(resp);
     } catch (const std::runtime_error &e) {
-        auto res = drogon::HttpResponse::newHttpResponse();
-        res->setStatusCode(k500InternalServerError);
-        fcb(res);
+        auto resp = drogon::HttpResponse::newHttpResponse();
+        LOG_ERROR << e.what();
+        resp->setStatusCode(k500InternalServerError);
+        fcb(resp);
     }
 }

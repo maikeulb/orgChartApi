@@ -20,16 +20,11 @@ std::string Jwt::encode(const std::string &field, const int value) {
     return token;
 }
 
-std::optional<jwt::decoded_jwt<jwt::traits::kazuho_picojson>> Jwt::decode(const std::string& token) {
+jwt::decoded_jwt<jwt::traits::kazuho_picojson> Jwt::decode(const std::string& token) {
     auto verifier = jwt::verify()
         .allow_algorithm(jwt::algorithm::hs256{secret})
         .with_issuer(issuer);
-    try {
-        auto decoded = jwt::decode(token);
-        verifier.verify(decoded);
-        return decoded;
-    } catch (const std::runtime_error &e) {
-        LOG_ERROR << e.what();
-        return std::nullopt;
-    }
+    auto decoded = jwt::decode(token);
+    verifier.verify(decoded);
+    return decoded;
 }
