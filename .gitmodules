@@ -1,0 +1,12 @@
+[submodule "third_party/drogon"]
+	path = third_party/drogon
+	url = https://github.com/drogonframework/drogon
+[submodule "third_party/jsoncpp"]
+	path = third_party/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp
+[submodule "third_party/jwt-cpp"]
+	path = third_party/jwt-cpp
+	url = https://github.com/Thalhammer/jwt-cpp
+[submodule "third_party/libbcrypt"]
+	path = third_party/libbcrypt
+	url = https://github.com/trusch/libbcrypt
