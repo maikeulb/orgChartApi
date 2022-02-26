@@ -29,5 +29,5 @@ class AuthController : public drogon::HttpController<AuthController>
 
     bool areFieldsValid(const User &user) const;
     bool isUserAvailable(const User &user, Mapper<User>& mp) const;
-    bool isPasswordValid(const std::string &hash, const std::string &text) const;
+    bool isPasswordValid(const std::string &text, const std::string &hash) const;
 };
