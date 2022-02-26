@@ -1,5 +1,6 @@
+#include <drogon/drogon.h>
 #include "LoginFilter.h"
-#include "../utils/JwtService.h"
+#include "../plugins/JwtPlugin.h"
 
 using namespace drogon;
 
@@ -14,21 +15,23 @@ void LoginFilter::doFilter(const HttpRequestPtr &req, FilterCallback &&fcb, Filt
         }
 
         auto token = req->getHeader("Authorization").substr(7);
-        auto decoded = JwtService::decode(token).value();
+        auto *jwtPtr = drogon::app().getPlugin<JwtPlugin>();
+        auto jwt = jwtPtr->init();
+        auto decoded = jwt.decode(token);
 
-        if (req->getHeader("Authorization").empty()) {
+        if (!decoded.has_value()) {
+            auto res = drogon::HttpResponse::newHttpResponse();
+            res->setStatusCode(k400BadRequest);
+            fcb(res);
+        }
+
+        if (decoded.value().get_payload_claim("user_id").as_string().empty()) {
             auto res = drogon::HttpResponse::newHttpResponse();
             res->setStatusCode(k400BadRequest);
             fcb(res);
             return;
         }
-        if (decoded.get_payload_claim("user_id").as_string().empty()) {
-            auto res = drogon::HttpResponse::newHttpResponse();
-            res->setStatusCode(k400BadRequest);
-            fcb(res);
-            return;
-        }
-        auto userId = stoi(decoded.get_payload_claim("user_id").as_string());
+        auto userId = stoi(decoded.value().get_payload_claim("user_id").as_string());
         fccb();
     } catch (const std::runtime_error &e) {
         auto res = drogon::HttpResponse::newHttpResponse();

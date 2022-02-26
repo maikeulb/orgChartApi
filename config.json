@@ -242,7 +242,20 @@
                 ],
                 "secure_ssl_host": "localhost:8849"
             }
+        },
+        {
+            //name: The class name of the plugin
+            //"name": "JwtPlugin"
+            //dependencies: Plugins that the plugin depends on. It can be commented out
+            "dependencies": [],
+            //config: The configuration of the plugin. This json object is the parameter to initialize the plugin.
+            //It can be commented out
+            "config": {
+                "jwt-secret":"secret",
+                "jwt-sessionTime":3600
+            }
         }
+
     ],
     //custom_config: custom configuration for users. This object can be get by the app().getCustomConfig() method.
     "custom_config": {

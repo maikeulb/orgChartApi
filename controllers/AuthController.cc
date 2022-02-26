@@ -1,7 +1,7 @@
 #include <third_party/libbcrypt/include/bcrypt/BCrypt.hpp>
 #include "AuthController.h"
 #include "../models/User.h"
-#include "../utils/JwtService.h"
+#include "../plugins/JwtPlugin.h"
 
 using namespace drogon::orm;
 using namespace drogon_model::org_chart;
@@ -123,7 +123,9 @@ bool AuthController::isPasswordValid(const std::string &text, const std::string 
 }
 
 AuthController::UserWithToken::UserWithToken(const User &user) {
-    token = JwtService::encode("user_id", user.getValueOfId());
+    auto *jwtPtr = drogon::app().getPlugin<JwtPlugin>();
+    auto jwt = jwtPtr->init();
+    token = jwt.encode("user_id", user.getValueOfId());
     username = user.getValueOfUsername();
 }
 
