@@ -8,7 +8,7 @@ class JwtPlugin : public drogon::Plugin<JwtPlugin>
   public:
     virtual void initAndStart(const Json::Value &config) override;
     virtual void shutdown() override;
-    Jwt init();
+    auto init() -> Jwt;
   private:
     Json::Value config;
 };

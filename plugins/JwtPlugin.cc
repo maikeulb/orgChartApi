@@ -14,8 +14,7 @@ void JwtPlugin::shutdown()
     LOG_DEBUG << "JWT shuut down";
 }
 
-Jwt JwtPlugin::init()
-{
+auto JwtPlugin::init() -> Jwt {
     auto secret = config.get("secret", "secret").asString();
     auto sessionTime = config.get("sessionTime", 3600).asInt();
     auto issuer = config.get("issuer", "auth0").asString();

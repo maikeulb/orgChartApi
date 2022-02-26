@@ -1,15 +1,12 @@
 #include <drogon/drogon.h>
 #include "Jwt.h"
 
-Jwt::Jwt(const std::string &secret, const int sessionTime, const std::string &issuer) {
-    this->secret = secret;
-    this->sessionTime = sessionTime;
-    this->issuer = issuer;
-}
+Jwt::Jwt(const std::string &secret, const int sessionTime, const std::string &issuer) :
+  secret{secret}, sessionTime{sessionTime}, issuer{issuer} {}
 
-std::string Jwt::encode(const std::string &field, const int value) {
+auto Jwt::encode(const std::string &field, const int value) -> std::string {
     auto time = std::chrono::system_clock::now();
-    auto expiresAt = std::chrono::duration_cast<std::chrono::seconds>((time + std::chrono::seconds{(sessionTime ? 30 : 1) * 24}).time_since_epoch()).count();
+    auto expiresAt = std::chrono::duration_cast<std::chrono::seconds>((time + std::chrono::seconds{sessionTime}).time_since_epoch()).count();
     auto token = jwt::create()
         .set_issuer(issuer)
         .set_type("JWS")
@@ -20,7 +17,7 @@ std::string Jwt::encode(const std::string &field, const int value) {
     return token;
 }
 
-jwt::decoded_jwt<jwt::traits::kazuho_picojson> Jwt::decode(const std::string& token) {
+auto Jwt::decode(const std::string& token) -> jwt::decoded_jwt<jwt::traits::kazuho_picojson> {
     auto verifier = jwt::verify()
         .allow_algorithm(jwt::algorithm::hs256{secret})
         .with_issuer(issuer);

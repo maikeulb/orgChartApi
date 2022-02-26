@@ -6,8 +6,8 @@ class Jwt
 {
   public:
     Jwt(const std::string &secret, const int sessionTime, const std::string &issuer);
-    std::string encode(const std::string &field, const int value);
-    jwt::decoded_jwt<jwt::traits::kazuho_picojson> decode(const std::string& token) ;
+    auto encode(const std::string &field, const int value) -> std::string;
+    auto decode(const std::string& token) -> jwt::decoded_jwt<jwt::traits::kazuho_picojson>;
 
   private:
     std::string secret;
