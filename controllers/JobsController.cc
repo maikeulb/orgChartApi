@@ -28,7 +28,7 @@ void JobsController::get(const HttpRequestPtr &req, std::function<void (const Ht
         Mapper<Job> mp(dbClientPtr);
         auto jobs = mp.orderBy(sortField, sortOrderEnum).offset(offset).limit(limit).findFutureAll().get();
 
-        Json::Value ret;
+        Json::Value ret{};
         for (auto j : jobs) {
             ret.append(j.toJson());
         }
@@ -37,7 +37,7 @@ void JobsController::get(const HttpRequestPtr &req, std::function<void (const Ht
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "database error";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -56,20 +56,21 @@ void JobsController::getOne(const HttpRequestPtr &req, std::function<void (const
         try {
             job = mp.findFutureByPrimaryKey(jobId).get();
         } catch (const DrogonDbException & e) {
-            Json::Value ret;
+            Json::Value ret{};
             ret["error"] = "resource not found";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
             resp->setStatusCode(HttpStatusCode::k404NotFound);
             callback(resp);
         }
 
-        Json::Value ret = job.toJson();
+        Json::Value ret{};
+        ret = job.toJson();
         auto resp=HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "database error";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -86,13 +87,14 @@ void JobsController::createOne(const HttpRequestPtr &req, std::function<void (co
         Mapper<Job> mp(dbClientPtr);
         auto job = mp.insertFuture(pJob).get();
 
-        Json::Value ret = job.toJson();
+        Json::Value ret{};
+        ret = job.toJson();
         auto resp=HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k201Created);
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "database error";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -105,7 +107,7 @@ void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (co
     LOG_DEBUG << "updateOne jobId: " << jobId;
     auto jsonPtr = req->jsonObject();
     if (!jsonPtr) {
-      Json::Value ret;
+      Json::Value ret{};
       ret["error"]="No json object is found in the request";
       auto resp = HttpResponse::newHttpResponse();
       resp->setStatusCode(HttpStatusCode::k400BadRequest);
@@ -120,7 +122,7 @@ void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (co
         try {
             job = mp.findFutureByPrimaryKey(jobId).get();
         } catch (const DrogonDbException & e) {
-            Json::Value ret;
+            Json::Value ret{};
             ret["error"] = "resource not found";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
             resp->setStatusCode(HttpStatusCode::k404NotFound);
@@ -132,13 +134,14 @@ void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (co
         }
         mp.update(job);
 
-        Json::Value ret = job.toJson();
+        Json::Value ret{};
+        ret = job.toJson();
         auto resp=HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k204NoContent);
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "database error";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -160,7 +163,7 @@ void JobsController::deleteOne(const HttpRequestPtr &req, std::function<void (co
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "database error";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -179,7 +182,7 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
     try {
         job = mp.findFutureByPrimaryKey(jobId).get();
     } catch (const DrogonDbException & e) {
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "resource not found";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k404NotFound);
@@ -189,13 +192,13 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
     job.getPersons(dbClientPtr,
         [callbackPtr](const std::vector<Person> persons) {
            if (persons.empty()) {
-              Json::Value ret;
+              Json::Value ret{};
               ret["error"] = "resource not found";
               auto resp = HttpResponse::newHttpJsonResponse(ret);
               resp->setStatusCode(HttpStatusCode::k404NotFound);
               (*callbackPtr)(resp);
           } else {
-              Json::Value ret;
+              Json::Value ret{};
               for (auto p : persons) {
                   ret.append(p.toJson());
               }
@@ -206,7 +209,7 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
         },
         [callbackPtr](const DrogonDbException &e) {
           LOG_ERROR << e.base().what();
-          Json::Value ret;
+          Json::Value ret{};
           ret["error"] = "database error";
           auto resp = HttpResponse::newHttpJsonResponse(ret);
           resp->setStatusCode(HttpStatusCode::k500InternalServerError);

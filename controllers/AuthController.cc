@@ -23,7 +23,7 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
         Mapper<User> mp(dbClientPtr);
 
         if (!areFieldsValid(pUser)) {
-            Json::Value ret;
+            Json::Value ret{};
             ret["error"] = "missing fields";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
             resp->setStatusCode(HttpStatusCode::k400BadRequest);
@@ -32,7 +32,7 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
         }
 
         if (!isUserAvailable(pUser, mp)) {
-            Json::Value ret;
+            Json::Value ret{};
             ret["error"] = "username is taken";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
             resp->setStatusCode(HttpStatusCode::k400BadRequest);
@@ -51,7 +51,7 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "database error";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -68,7 +68,7 @@ void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (co
         Mapper<User> mp(dbClientPtr);
 
         if (!areFieldsValid(pUser)) {
-            Json::Value ret;
+            Json::Value ret{};
             ret["error"] = "missing fields";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
             resp->setStatusCode(HttpStatusCode::k400BadRequest);
@@ -78,7 +78,7 @@ void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (co
 
         auto user = mp.findFutureBy(Criteria(User::Cols::_username, CompareOperator::EQ, pUser.getValueOfUsername())).get();
         if (user.empty()) {
-            Json::Value ret;
+            Json::Value ret{};
             ret["error"] = "user not found";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
             resp->setStatusCode(HttpStatusCode::k400BadRequest);
@@ -87,7 +87,7 @@ void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (co
         }
 
         if (!isPasswordValid(pUser.getValueOfPassword(), user[0].getValueOfPassword())) {
-            Json::Value ret;
+            Json::Value ret{};
             ret["error"] = "username and password do not match";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
             resp->setStatusCode(HttpStatusCode::k401Unauthorized);
@@ -101,7 +101,7 @@ void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (co
         callback(resp);
     } catch (const DrogonDbException & e) {
         LOG_ERROR << e.base().what();
-        Json::Value ret;
+        Json::Value ret{};
         ret["error"] = "database error";
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
@@ -129,7 +129,7 @@ AuthController::UserWithToken::UserWithToken(const User &user) {
 }
 
 Json::Value AuthController::UserWithToken::toJson() {
-    Json::Value ret;
+    Json::Value ret{};
     ret["username"] = username;
     ret["token"] = token;
     return ret;

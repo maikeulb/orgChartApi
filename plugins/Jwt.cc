@@ -2,7 +2,7 @@
 #include "Jwt.h"
 
 Jwt::Jwt(const std::string &secret, const int sessionTime, const std::string &issuer) :
-  secret{secret}, sessionTime{sessionTime}, issuer{issuer} {}
+  secret{std::move(secret)}, sessionTime{sessionTime}, issuer{std::move(issuer)} {}
 
 auto Jwt::encode(const std::string &field, const int value) -> std::string {
     auto time = std::chrono::system_clock::now();
