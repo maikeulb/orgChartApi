@@ -15,11 +15,11 @@
     "user": "postgres",
     //password or passwd: Password
     "password": "password",
-    //client_encoding: The character set used by drogon_ctl. it is empty string by default which 
+    //client_encoding: The character set used by drogon_ctl. it is empty string by default which
     //means use the default character set.
     //"client_encoding": "",
     //table: An array of tables to be modelized. if the array is empty, all revealed tables are modelized.
-    "tables": ["users"],
+    "tables": [],
     //convert: the value can be changed by a function call before it is stored into database or
     //after it is read from database
     "convert": {

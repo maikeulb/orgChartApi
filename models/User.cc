@@ -23,7 +23,7 @@ const std::string User::tableName = "users";
 const std::vector<typename User::MetaData> User::metaData_={
 {"id","int32_t","integer",4,1,1,1},
 {"username","std::string","character varying",50,0,0,1},
-{"password","std::string","character varying",50,0,0,0}
+{"password","std::string","character varying",0,0,0,1}
 };
 const std::string &User::getColumnName(size_t index) noexcept(false)
 {
@@ -261,11 +261,6 @@ void User::setPassword(std::string &&pPassword) noexcept
     password_ = std::make_shared<std::string>(std::move(pPassword));
     dirtyFlag_[2] = true;
 }
-void User::setPasswordToNull() noexcept
-{
-    password_.reset();
-    dirtyFlag_[2] = true;
-}
 
 void User::updateId(const uint64_t id)
 {
@@ -466,6 +461,11 @@ bool User::validateJsonForCreation(const Json::Value &pJson, std::string &err)
         if(!validJsonOfField(2, "password", pJson["password"], err, true))
             return false;
     }
+    else
+    {
+        err="The password column cannot be null";
+        return false;
+    }
     return true;
 }
 bool User::validateMasqueradedJsonForCreation(const Json::Value &pJson,
@@ -506,6 +506,11 @@ bool User::validateMasqueradedJsonForCreation(const Json::Value &pJson,
               if(!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err, true))
                   return false;
           }
+        else
+        {
+            err="The " + pMasqueradingVector[2] + " column cannot be null";
+            return false;
+        }
       }
     }
     catch(const Json::LogicError &e)
@@ -626,22 +631,14 @@ bool User::validJsonOfField(size_t index,
         case 2:
             if(pJson.isNull())
             {
-                return true;
+                err="The " + fieldName + " column cannot be null";
+                return false;
             }
             if(!pJson.isString())
             {
                 err="Type error in the "+fieldName+" field";
                 return false;
             }
-            // asString().length() creates a string object, is there any better way to validate the length?
-            if(pJson.isString() && pJson.asString().length() > 50)
-            {
-                err="String length exceeds limit for the " +
-                    fieldName +
-                    " field (the maximum value is 50)";
-                return false;
-            }
-
             break;
         default:
             err="Internal error in the server";

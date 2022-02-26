@@ -121,7 +121,6 @@ class User
     ///Set the value of the column password
     void setPassword(const std::string &pPassword) noexcept;
     void setPassword(std::string &&pPassword) noexcept;
-    void setPasswordToNull() noexcept;
 
 
     static size_t getColumnNumber() noexcept {  return 3;  }
