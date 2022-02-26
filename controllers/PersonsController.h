@@ -13,11 +13,11 @@ class PersonsController:public drogon::HttpController<PersonsController>
   public:
     METHOD_LIST_BEGIN
 		  ADD_METHOD_TO(PersonsController::get,"/persons", Get, "LoginFilter");
-		  ADD_METHOD_TO(PersonsController::getOne,"/persons/{1}", Get);
-			ADD_METHOD_TO(PersonsController::createOne, "/persons", Post);
-      ADD_METHOD_TO(PersonsController::updateOne,"/persons/{1}", Put);
-      ADD_METHOD_TO(PersonsController::deleteOne,"/persons/{1}", Delete);
-      ADD_METHOD_TO(PersonsController::getDirectReports,"/persons/{1}/reports", Get);
+		  ADD_METHOD_TO(PersonsController::getOne,"/persons/{1}", Get, "LoginFilter");
+			ADD_METHOD_TO(PersonsController::createOne, "/persons", Post, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::updateOne,"/persons/{1}", Put, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::deleteOne,"/persons/{1}", Delete, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::getDirectReports,"/persons/{1}/reports", Get, "LoginFilter");
     METHOD_LIST_END
 
     void get(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) const;

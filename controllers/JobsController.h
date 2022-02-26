@@ -10,12 +10,12 @@ class JobsController:public drogon::HttpController<JobsController>
 {
   public:
     METHOD_LIST_BEGIN
-		  ADD_METHOD_TO(JobsController::get,"/jobs", Get);
-		  ADD_METHOD_TO(JobsController::getOne,"/jobs/{1}", Get);
-			ADD_METHOD_TO(JobsController::createOne, "/jobs", Post);
-      ADD_METHOD_TO(JobsController::updateOne,"/jobs/{1}", Put);
-      ADD_METHOD_TO(JobsController::deleteOne,"/jobs/{1}", Delete);
-      ADD_METHOD_TO(JobsController::getJobPersons,"/jobs/{1}/persons", Get);
+		  ADD_METHOD_TO(JobsController::get,"/jobs", Get, "LoginFilter");
+		  ADD_METHOD_TO(JobsController::getOne,"/jobs/{1}", Get, "LoginFilter");
+			ADD_METHOD_TO(JobsController::createOne, "/jobs", Post, "LoginFilter");
+      ADD_METHOD_TO(JobsController::updateOne,"/jobs/{1}", Put, "LoginFilter");
+      ADD_METHOD_TO(JobsController::deleteOne,"/jobs/{1}", Delete, "LoginFilter");
+      ADD_METHOD_TO(JobsController::getJobPersons,"/jobs/{1}/persons", Get, "LoginFilter");
     METHOD_LIST_END
 
     void get(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) const;
