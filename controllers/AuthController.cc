@@ -15,8 +15,7 @@ namespace drogon {
     }
 }
 
-void AuthController::registerUser(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, User &&pUser) const
-{
+void AuthController::registerUser(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, User &&pUser) const {
     LOG_DEBUG << "registerUser";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -46,7 +45,7 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
 
         auto userWithToken = AuthController::UserWithToken(newUser);
         Json::Value ret = userWithToken.toJson();
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k201Created);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -57,11 +56,9 @@ void AuthController::registerUser(const HttpRequestPtr &req, std::function<void 
         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
         callback(resp);
     }
-
 }
 
-void AuthController::loginUser(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, User &&pUser) const
-{
+void AuthController::loginUser(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, User &&pUser) const {
     LOG_DEBUG << "loginUser";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -113,8 +110,9 @@ bool AuthController::areFieldsValid(const User &user) const {
     return user.getUsername() != nullptr && user.getPassword() != nullptr;
 }
 
-bool AuthController::isUserAvailable(const User &user, Mapper<User>& mp) const {
-    return mp.findFutureBy(Criteria(User::Cols::_username, CompareOperator::EQ, user.getValueOfUsername())).get().empty();
+bool AuthController::isUserAvailable(const User &user, Mapper<User> &mp) const {
+    auto criteria = Criteria(User::Cols::_username, CompareOperator::EQ, user.getValueOfUsername());
+    return mp.findFutureBy(criteria).get().empty();
 }
 
 bool AuthController::isPasswordValid(const std::string &text, const std::string &hash) const {

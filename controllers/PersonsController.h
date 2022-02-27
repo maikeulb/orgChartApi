@@ -1,6 +1,7 @@
 #pragma once
 
 #include <drogon/HttpController.h>
+#include <string>
 #include "../models/Person.h"
 #include "../models/Department.h"
 #include "../models/Job.h"
@@ -8,26 +9,25 @@
 using namespace drogon;
 using namespace drogon_model::org_chart;
 
-class PersonsController:public drogon::HttpController<PersonsController>
-{
-  public:
+class PersonsController : public drogon::HttpController<PersonsController> {
+ public:
     METHOD_LIST_BEGIN
-		  ADD_METHOD_TO(PersonsController::get,"/persons", Get, "LoginFilter");
-		  ADD_METHOD_TO(PersonsController::getOne,"/persons/{1}", Get, "LoginFilter");
-			ADD_METHOD_TO(PersonsController::createOne, "/persons", Post, "LoginFilter");
-      ADD_METHOD_TO(PersonsController::updateOne,"/persons/{1}", Put, "LoginFilter");
-      ADD_METHOD_TO(PersonsController::deleteOne,"/persons/{1}", Delete, "LoginFilter");
-      ADD_METHOD_TO(PersonsController::getDirectReports,"/persons/{1}/reports", Get, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::get, "/persons", Get, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::getOne, "/persons/{1}", Get, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::createOne, "/persons", Post, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::updateOne, "/persons/{1}", Put, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::deleteOne, "/persons/{1}", Delete, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::getDirectReports, "/persons/{1}/reports", Get, "LoginFilter");
     METHOD_LIST_END
 
-    void get(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback) const;
-    void getOne(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
-    void createOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Person &&pPerson) const;
-		void updateOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId, Person &&pPerson) const;
-    void deleteOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
-    void getDirectReports(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int pPersonId) const;
+    void get(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr &)> &&callback) const;
+    void getOne(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr &)> &&callback, int pPersonId) const;
+    void createOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, Person &&pPerson) const;
+    void updateOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int pPersonId, Person &&pPerson) const;
+    void deleteOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int pPersonId) const;
+    void getDirectReports(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int pPersonId) const;
 
-  private:
+ private:
     struct PersonDetails {
         int id;
         std::string first_name;
@@ -36,7 +36,7 @@ class PersonsController:public drogon::HttpController<PersonsController>
         Json::Value manager;
         Json::Value department;
         Json::Value job;
-        PersonDetails() {};
+        PersonDetails() {}
         explicit PersonDetails(const Person &person, const Person &manager, const Department &department, const Job &job);
         Json::Value toJson();
     };

@@ -4,8 +4,7 @@
 
 using namespace drogon;
 
-void LoginFilter::doFilter(const HttpRequestPtr &req, FilterCallback &&fcb, FilterChainCallback &&fccb)
-{
+void LoginFilter::doFilter(const HttpRequestPtr &req, FilterCallback &&fcb, FilterChainCallback &&fccb) {
     try {
         if (req->getHeader("Authorization").empty()) {
             Json::Value ret;

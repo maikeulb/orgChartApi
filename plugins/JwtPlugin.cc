@@ -3,14 +3,12 @@
 
 using namespace drogon;
 
-void JwtPlugin::initAndStart(const Json::Value &config)
-{
+void JwtPlugin::initAndStart(const Json::Value &config) {
     LOG_DEBUG << "JWT initialized and Start";
     this->config = config;
 }
 
-void JwtPlugin::shutdown()
-{
+void JwtPlugin::shutdown() {
     LOG_DEBUG << "JWT shuut down";
 }
 

@@ -1,4 +1,8 @@
 #include "JobsController.h"
+#include <string>
+#include <memory>
+#include <utility>
+#include <vector>
 #include "../models/Person.h"
 
 using namespace drogon::orm;
@@ -13,8 +17,7 @@ namespace drogon {
     }
 }
 
-void JobsController::get(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
-{
+void JobsController::get(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) const {
     LOG_DEBUG << "get";
     auto offset = req->getOptionalParameter<int>("offset").value_or(0);
     auto limit = req->getOptionalParameter<int>("limit").value_or(25);
@@ -32,7 +35,7 @@ void JobsController::get(const HttpRequestPtr &req, std::function<void (const Ht
         for (auto j : jobs) {
             ret.append(j.toJson());
         }
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -45,8 +48,7 @@ void JobsController::get(const HttpRequestPtr &req, std::function<void (const Ht
     }
 }
 
-void JobsController::getOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int jobId) const
-{
+void JobsController::getOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int jobId) const {
     LOG_DEBUG << "getOne jobId: "<< jobId;
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -65,7 +67,7 @@ void JobsController::getOne(const HttpRequestPtr &req, std::function<void (const
 
         Json::Value ret{};
         ret = job.toJson();
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -78,8 +80,7 @@ void JobsController::getOne(const HttpRequestPtr &req, std::function<void (const
     }
 }
 
-void JobsController::createOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Job &&pJob) const
-{
+void JobsController::createOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, Job &&pJob) const {
     LOG_DEBUG << "createOne";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -89,7 +90,7 @@ void JobsController::createOne(const HttpRequestPtr &req, std::function<void (co
 
         Json::Value ret{};
         ret = job.toJson();
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k201Created);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -102,8 +103,7 @@ void JobsController::createOne(const HttpRequestPtr &req, std::function<void (co
     }
 }
 
-void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int jobId, Job &&pJobDetails) const
-{
+void JobsController::updateOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int jobId, Job &&pJobDetails) const {
     LOG_DEBUG << "updateOne jobId: " << jobId;
     auto jsonPtr = req->jsonObject();
     if (!jsonPtr) {
@@ -136,7 +136,7 @@ void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (co
 
         Json::Value ret{};
         ret = job.toJson();
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k204NoContent);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -149,8 +149,7 @@ void JobsController::updateOne(const HttpRequestPtr &req, std::function<void (co
     }
 }
 
-void JobsController::deleteOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int jobId) const
-{
+void JobsController::deleteOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int jobId) const {
     LOG_DEBUG << "deleteOne jobId: ";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -158,7 +157,7 @@ void JobsController::deleteOne(const HttpRequestPtr &req, std::function<void (co
         Mapper<Job> mp(dbClientPtr);
         mp.deleteFutureBy(Criteria(Person::Cols::_id, CompareOperator::EQ, jobId)).get();
 
-        auto resp=HttpResponse::newHttpResponse();
+        auto resp = HttpResponse::newHttpResponse();
         resp->setStatusCode(HttpStatusCode::k204NoContent);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -171,8 +170,7 @@ void JobsController::deleteOne(const HttpRequestPtr &req, std::function<void (co
     }
 }
 
-void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int jobId) const
-{
+void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int jobId) const {
     LOG_DEBUG << "getJobPersons jobId: "<< jobId;
     auto callbackPtr = std::make_shared<std::function<void(const HttpResponsePtr &)>>(std::move(callback));
     auto dbClientPtr = drogon::app().getDbClient();
@@ -202,7 +200,7 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
               for (auto p : persons) {
                   ret.append(p.toJson());
               }
-              auto resp=HttpResponse::newHttpJsonResponse(ret);
+              auto resp = HttpResponse::newHttpJsonResponse(ret);
               resp->setStatusCode(HttpStatusCode::k200OK);
               (*callbackPtr)(resp);
           }
@@ -214,6 +212,5 @@ void JobsController::getJobPersons(const HttpRequestPtr &req, std::function<void
           auto resp = HttpResponse::newHttpJsonResponse(ret);
           resp->setStatusCode(HttpStatusCode::k500InternalServerError);
           (*callbackPtr)(resp);
-        }
-    );
+        });
 }

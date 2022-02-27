@@ -1,4 +1,8 @@
 #include "DepartmentsController.h"
+#include <string>
+#include <memory>
+#include <utility>
+#include <vector>
 #include "../models/Person.h"
 
 using namespace drogon::orm;
@@ -12,10 +16,9 @@ namespace drogon {
         auto department = Department(json);
         return department;
     }
-}
+}  // namespace drogon
 
-void DepartmentsController::get(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) const
-{
+void DepartmentsController::get(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) const {
     LOG_DEBUG << "get";
     auto offset = req->getOptionalParameter<int>("offset").value_or(0);
     auto limit = req->getOptionalParameter<int>("limit").value_or(25);
@@ -33,7 +36,7 @@ void DepartmentsController::get(const HttpRequestPtr &req, std::function<void (c
         for (auto d : departments) {
             ret.append(d.toJson());
         }
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -46,8 +49,7 @@ void DepartmentsController::get(const HttpRequestPtr &req, std::function<void (c
     }
 }
 
-void DepartmentsController::getOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId) const
-{
+void DepartmentsController::getOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int departmentId) const {
     LOG_DEBUG << "getOne departmentId: "<< departmentId;
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -66,7 +68,7 @@ void DepartmentsController::getOne(const HttpRequestPtr &req, std::function<void
 
         Json::Value ret{};
         ret = department.toJson();
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -79,8 +81,7 @@ void DepartmentsController::getOne(const HttpRequestPtr &req, std::function<void
     }
 }
 
-void DepartmentsController::createOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, Department &&pDepartment) const
-{
+void DepartmentsController::createOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, Department &&pDepartment) const {
     LOG_DEBUG << "createOne";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -90,7 +91,7 @@ void DepartmentsController::createOne(const HttpRequestPtr &req, std::function<v
 
         Json::Value ret{};
         ret = department.toJson();
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k201Created);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -103,8 +104,7 @@ void DepartmentsController::createOne(const HttpRequestPtr &req, std::function<v
     }
 }
 
-void DepartmentsController::updateOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId, Department &&pDepartmentDetails) const
-{
+void DepartmentsController::updateOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int departmentId, Department &&pDepartmentDetails) const {
     LOG_DEBUG << "updateOne departmentId: " << departmentId;
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -129,7 +129,7 @@ void DepartmentsController::updateOne(const HttpRequestPtr &req, std::function<v
 
         Json::Value ret{};
         ret = department.toJson();
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
+        auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k204NoContent);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -142,8 +142,7 @@ void DepartmentsController::updateOne(const HttpRequestPtr &req, std::function<v
     }
 }
 
-void DepartmentsController::deleteOne(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId) const
-{
+void DepartmentsController::deleteOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int departmentId) const {
     LOG_DEBUG << "deleteOne departmentId: ";
     try {
         auto dbClientPtr = drogon::app().getDbClient();
@@ -151,7 +150,7 @@ void DepartmentsController::deleteOne(const HttpRequestPtr &req, std::function<v
         Mapper<Department> mp(dbClientPtr);
         mp.deleteFutureBy(Criteria(Person::Cols::_id, CompareOperator::EQ, departmentId)).get();
 
-        auto resp=HttpResponse::newHttpResponse();
+        auto resp = HttpResponse::newHttpResponse();
         resp->setStatusCode(HttpStatusCode::k204NoContent);
         callback(resp);
     } catch (const DrogonDbException & e) {
@@ -164,8 +163,7 @@ void DepartmentsController::deleteOne(const HttpRequestPtr &req, std::function<v
     }
 }
 
-void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback, int departmentId) const
-{
+void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int departmentId) const {
     LOG_DEBUG << "getDepartmentPersons departmentId: "<< departmentId;
     auto callbackPtr = std::make_shared<std::function<void(const HttpResponsePtr &)>>(std::move(callback));
     auto dbClientPtr = drogon::app().getDbClient();
@@ -195,7 +193,7 @@ void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std:
               for (auto p : persons) {
                   ret.append(p.toJson());
               }
-              auto resp=HttpResponse::newHttpJsonResponse(ret);
+              auto resp = HttpResponse::newHttpJsonResponse(ret);
               resp->setStatusCode(HttpStatusCode::k200OK);
               (*callbackPtr)(resp);
           }
@@ -207,6 +205,5 @@ void DepartmentsController::getDepartmentPersons(const HttpRequestPtr &req, std:
           auto resp = HttpResponse::newHttpJsonResponse(ret);
           resp->setStatusCode(HttpStatusCode::k500InternalServerError);
           (*callbackPtr)(resp);
-      }
-    );
+      });
 }
