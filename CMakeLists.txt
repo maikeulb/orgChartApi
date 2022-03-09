@@ -21,6 +21,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(${PROJECT_NAME} main.cc)
 
+add_executable(${PROJECT_NAME}_test test/test_main.cc)
+
 # ##############################################################################
 # https://github.com/drogonframework/drogon
 add_subdirectory(third_party/drogon)
@@ -38,6 +40,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE bcrypt)
 find_package(Drogon CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
 
+target_link_libraries(${PROJECT_NAME}_test PRIVATE drogon)
+ParseAndAddDrogonTests(${PROJECT_NAME}_test)
 # ##############################################################################
 
 if (CMAKE_CXX_STANDARD LESS 17)

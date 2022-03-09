@@ -2,12 +2,28 @@
 #include <drogon/drogon_test.h>
 #include <drogon/drogon.h>
 
+DROGON_TEST(RemoteAPITest)
+{
+    auto client = drogon::HttpClient::newHttpClient("http://localhost:8848");
+    auto req = drogon::HttpRequest::newHttpRequest();
+    req->setPath("/");
+    client->sendRequest(req, [TEST_CTX](drogon::ReqResult res, const drogon::HttpResponsePtr& resp) {
+        // There's nothing we can do if the request didn't reach the server
+        // or the server generated garbage.
+        REQUIRE(res == drogon::ReqResult::Ok);
+        REQUIRE(resp != nullptr);
+
+        CHECK(resp->getStatusCode() == drogon::k200OK);
+        CHECK(resp->contentType() == drogon::CT_APPLICATION_JSON);
+    });
+}
+
 DROGON_TEST(BasicTest)
 {
     // Add your tests here
 }
 
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     using namespace drogon;
 
