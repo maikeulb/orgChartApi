@@ -2,6 +2,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <regex>
 
 using namespace drogon::orm;
 using namespace drogon_model::org_chart;
@@ -21,29 +22,47 @@ namespace drogon {
 
 void PersonsController::get(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback) const {
     LOG_DEBUG << "get";
-    auto offset = req->getOptionalParameter<int>("offset").value_or(0);
+    auto sort_field = req->getOptionalParameter<std::string>("sort_field").value_or("id");
+    auto sort_order = req->getOptionalParameter<std::string>("sort_order").value_or("asc");
     auto limit = req->getOptionalParameter<int>("limit").value_or(25);
-    auto sortField = req->getOptionalParameter<std::string>("sort_field").value_or("id");
-    auto sortOrder = req->getOptionalParameter<std::string>("sort_order").value_or("asc");
-    auto sortOrderEnum = sortOrder == "asc" ? SortOrder::ASC : SortOrder::DESC;
+    auto offset = req->getOptionalParameter<int>("offset").value_or(0);
 
     try {
         auto dbClientPtr = drogon::app().getDbClient();
 
-        Mapper<Person> pmp(dbClientPtr);
-        Mapper<Department> dmp(dbClientPtr);
-        Mapper<Job> jmp(dbClientPtr);
 
-        auto persons = pmp.orderBy(sortField, sortOrderEnum).offset(offset).limit(limit).findFutureAll().get();
+        const char *sql = "select person.*, \n\
+                           job.title as job_title, \n\
+                           department.name as department_name, \n\
+                           concat(manager.first_name, ' ', manager.last_name) as manager_full_name \n\
+                           from person \n\
+                           join job on person.job_id =job.id \n\
+                           join department on person.department_id=department.id \n\
+                           join person as manager on person.manager_id = manager.id \n\
+                           order by $sort_field $sort_order \n\
+                           limit $1 offset $2;";
+
+        // hack workaroun
+        auto sql_sub = std::regex_replace(sql, std::regex("\\$sort_field"), sort_field);
+        sql_sub = std::regex_replace(sql_sub, std::regex("\\$sort_order"), sort_order);
+
+        auto f = dbClientPtr->execSqlAsyncFuture(sql_sub, std::to_string(limit), std::to_string(offset));
+        auto result = f.get(); // Block until we get the result or catch the exception;
+        if (result.empty()) {
+            Json::Value ret{};
+            ret["error"] = "resource not found";
+            auto resp = HttpResponse::newHttpJsonResponse(ret);
+            resp->setStatusCode(HttpStatusCode::k404NotFound);
+            callback(resp);
+        }
 
         Json::Value ret{};
-        for (auto p : persons) {
-            auto manager = pmp.findFutureByPrimaryKey(p.getValueOfManagerId());
-            auto department = dmp.findFutureByPrimaryKey(p.getValueOfDepartmentId());
-            auto job = jmp.findFutureByPrimaryKey(p.getValueOfJobId());
-            PersonDetails personDetails = PersonDetails(p, manager.get(), department.get(), job.get());
+        for (auto row : result) {
+            PersonInfo personInfo{row};
+            PersonDetails personDetails{personInfo};
             ret.append(personDetails.toJson());
         }
+
         auto resp = HttpResponse::newHttpJsonResponse(ret);
         resp->setStatusCode(HttpStatusCode::k200OK);
         callback(resp);
@@ -62,14 +81,20 @@ void PersonsController::getOne(const HttpRequestPtr &req, std::function<void(con
     try {
         auto dbClientPtr = drogon::app().getDbClient();
 
-        Mapper<Person> pmp(dbClientPtr);
-        Mapper<Department> dmp(dbClientPtr);
-        Mapper<Job> jmp(dbClientPtr);
+        const char *sql = "select person.*, \n\
+                           job.title as job_title, \n\
+                           department.name as department_name, \n\
+                           concat(manager.first_name, ' ', manager.last_name) as manager_full_name \n\
+                           from person \n\
+                           join job on person.job_id =job.id \n\
+                           join department on person.department_id=department.id \n\
+                           join person as manager on person.manager_id = manager.id \n\
+                           where person.id = $1";
 
-        Person person;
-        try {
-            person = pmp.findFutureByPrimaryKey(personId).get();
-        } catch (const DrogonDbException & e) {
+        auto f = dbClientPtr->execSqlAsyncFuture(sql, personId);
+
+        auto result = f.get(); // Block until we get the result or catch the exception;
+        if (result.empty()) {
             Json::Value ret{};
             ret["error"] = "resource not found";
             auto resp = HttpResponse::newHttpJsonResponse(ret);
@@ -77,10 +102,9 @@ void PersonsController::getOne(const HttpRequestPtr &req, std::function<void(con
             callback(resp);
         }
 
-        auto manager = pmp.findFutureByPrimaryKey(person.getValueOfManagerId());
-        auto department = dmp.findFutureByPrimaryKey(person.getValueOfDepartmentId());
-        auto job = jmp.findFutureByPrimaryKey(person.getValueOfJobId());
-        PersonDetails personDetails = PersonDetails(person, manager.get(), department.get(), job.get());
+        auto row = result[0];
+        PersonInfo personInfo{row};
+        PersonDetails personDetails{personInfo};
 
         Json::Value ret = personDetails.toJson();
         auto resp = HttpResponse::newHttpJsonResponse(ret);
@@ -236,14 +260,23 @@ void PersonsController::getDirectReports(const HttpRequestPtr &req, std::functio
       });
 }
 
-PersonsController::PersonDetails::PersonDetails(const Person &person, const Person &manager, const Department &department, const Job &job) {
-    id = person.getValueOfId();
-    first_name = person.getValueOfFirstName();
-    last_name = person.getValueOfLastName();
-    hire_date = person.getValueOfHireDate();
-    this->manager = manager.toJson();
-    this->department = department.toJson();
-    this->job = job.toJson();
+PersonsController::PersonDetails::PersonDetails(const PersonInfo &personInfo) {
+    id = personInfo.getValueOfId();
+    first_name = personInfo.getValueOfFirstName();
+    last_name = personInfo.getValueOfLastName();
+    hire_date = personInfo.getValueOfHireDate();
+    Json::Value managerJson{};
+    managerJson["id"] = personInfo.getValueOfManagerId();
+    managerJson["full_name"] = personInfo.getValueOfManagerFullName();
+    this->manager = managerJson;
+    Json::Value departmentJson{};
+    departmentJson["id"] = personInfo.getValueOfDepartmentId();
+    departmentJson["name"] = personInfo.getValueOfDepartmentName();
+    this->department = departmentJson;
+    Json::Value jobJson{};
+    jobJson["id"] = personInfo.getValueOfJobId();
+    jobJson["title"] = personInfo.getValueOfJobTitle();
+    this->job = jobJson;
 }
 
 auto PersonsController::PersonDetails::toJson() -> Json::Value {

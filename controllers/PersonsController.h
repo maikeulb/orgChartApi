@@ -3,8 +3,7 @@
 #include <drogon/HttpController.h>
 #include <string>
 #include "../models/Person.h"
-#include "../models/Department.h"
-#include "../models/Job.h"
+#include "../models/PersonInfo.h"
 
 using namespace drogon;
 using namespace drogon_model::org_chart;
@@ -12,8 +11,10 @@ using namespace drogon_model::org_chart;
 class PersonsController : public drogon::HttpController<PersonsController> {
  public:
     METHOD_LIST_BEGIN
-      ADD_METHOD_TO(PersonsController::get, "/persons", Get, "LoginFilter");
-      ADD_METHOD_TO(PersonsController::getOne, "/persons/{1}", Get, "LoginFilter");
+      // ADD_METHOD_TO(PersonsController::get, "/persons", Get, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::get, "/persons", Get);
+      // ADD_METHOD_TO(PersonsController::getOne, "/persons/{1}", Get, "LoginFilter");
+      ADD_METHOD_TO(PersonsController::getOne, "/persons/{1}", Get);
       ADD_METHOD_TO(PersonsController::createOne, "/persons", Post, "LoginFilter");
       ADD_METHOD_TO(PersonsController::updateOne, "/persons/{1}", Put, "LoginFilter");
       ADD_METHOD_TO(PersonsController::deleteOne, "/persons/{1}", Delete, "LoginFilter");
@@ -37,7 +38,7 @@ class PersonsController : public drogon::HttpController<PersonsController> {
         Json::Value department;
         Json::Value job;
         PersonDetails() {}
-        explicit PersonDetails(const Person &person, const Person &manager, const Department &department, const Job &job);
+        explicit PersonDetails(const PersonInfo &personInfo);
         Json::Value toJson();
     };
 };
