@@ -78,14 +78,15 @@ Libraries:
 
 ### Setup Database
 Start a postgres server. <br />
-`docker run --name postgres -e POSTGRES_PASSWORD=password -d postgres`
+`docker run --name pg -e POSTGRES_PASSWORD=password -d -p 5433:5432 postgres`
+
 
 Log into postgres using `psql` to create a `org_chart` database. <br />
-`psql 'postgresql://postgres:password@127.0.0.1:5432/org_chart'`
+`psql 'postgresql://postgres:password@127.0.0.1:5433/org_chart'`
 
 Create and seed the tables. <br />
-`psql 'postgresql://postgres:password@127.0.0.1:5432/org_chart' -f scripts/create_db.sql` <br />
-`psql 'postgresql://postgres:password@127.0.0.1:5432/org_chart' -f scripts/seed_db.sql`
+`psql 'postgresql://postgres:password@127.0.0.1:5433/org_chart' -f scripts/create_db.sql` <br />
+`psql 'postgresql://postgres:password@127.0.0.1:5433/org_chart' -f scripts/seed_db.sql`
 
 ### Build
 ```

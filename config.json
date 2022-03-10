@@ -22,7 +22,7 @@
             //host: Server address,localhost by default
             "host": "127.0.0.1",
             //port: Server port, 5432 by default
-            "port": 5432,
+            "port": 5433,
             //dbname: Database name
             "dbname": "org_chart",
             //user: 'postgres' by default
