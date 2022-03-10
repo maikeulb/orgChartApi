@@ -30,7 +30,6 @@ void PersonsController::get(const HttpRequestPtr &req, std::function<void(const 
     try {
         auto dbClientPtr = drogon::app().getDbClient();
 
-
         const char *sql = "select person.*, \n\
                            job.title as job_title, \n\
                            department.name as department_name, \n\
@@ -78,47 +77,95 @@ void PersonsController::get(const HttpRequestPtr &req, std::function<void(const 
 
 void PersonsController::getOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int personId) const {
     LOG_DEBUG << "getOne personId: "<< personId;
-    try {
-        auto dbClientPtr = drogon::app().getDbClient();
+    auto callbackPtr = std::make_shared<std::function<void(const HttpResponsePtr &)>>(std::move(callback));
+    auto dbClientPtr = drogon::app().getDbClient();
 
-        const char *sql = "select person.*, \n\
-                           job.title as job_title, \n\
-                           department.name as department_name, \n\
-                           concat(manager.first_name, ' ', manager.last_name) as manager_full_name \n\
-                           from person \n\
-                           join job on person.job_id =job.id \n\
-                           join department on person.department_id=department.id \n\
-                           join person as manager on person.manager_id = manager.id \n\
-                           where person.id = $1";
+    const char *sql = "select person.*, \n\
+                       job.title as job_title, \n\
+                       department.name as department_name, \n\
+                       concat(manager.first_name, ' ', manager.last_name) as manager_full_name \n\
+                       from person \n\
+                       join job on person.job_id =job.id \n\
+                       join department on person.department_id=department.id \n\
+                       join person as manager on person.manager_id = manager.id \n\
+                       where person.id = $1";
 
-        auto f = dbClientPtr->execSqlAsyncFuture(sql, personId);
+    *dbClientPtr << std::string(sql)
+                 << personId
+                 >> [callbackPtr](const Result &result)
+                   {
+                      if (result.empty()) {
+                          Json::Value ret{};
+                          ret["error"] = "resource not found";
+                          auto resp = HttpResponse::newHttpJsonResponse(ret);
+                          resp->setStatusCode(HttpStatusCode::k404NotFound);
+                        (*callbackPtr)(resp);
+                      }
 
-        auto result = f.get(); // Block until we get the result or catch the exception;
-        if (result.empty()) {
-            Json::Value ret{};
-            ret["error"] = "resource not found";
-            auto resp = HttpResponse::newHttpJsonResponse(ret);
-            resp->setStatusCode(HttpStatusCode::k404NotFound);
-            callback(resp);
-        }
+                      auto row = result[0];
+                      PersonInfo personInfo{row};
+                      PersonDetails personDetails{personInfo};
 
-        auto row = result[0];
-        PersonInfo personInfo{row};
-        PersonDetails personDetails{personInfo};
+                      Json::Value ret = personDetails.toJson();
+                      auto resp = HttpResponse::newHttpJsonResponse(ret);
+                      resp->setStatusCode(HttpStatusCode::k200OK);
+                      (*callbackPtr)(resp);
+                   }
+                 >> [callbackPtr](const DrogonDbException &e)
+                   {
+                      LOG_ERROR << e.base().what();
+                      Json::Value ret{};
+                      ret["error"] = "database error";
+                      auto resp = HttpResponse::newHttpJsonResponse(ret);
+                      resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+                      (*callbackPtr)(resp);
+                   };
 
-        Json::Value ret = personDetails.toJson();
-        auto resp = HttpResponse::newHttpJsonResponse(ret);
-        resp->setStatusCode(HttpStatusCode::k200OK);
-        callback(resp);
-    } catch (const DrogonDbException & e) {
-        LOG_ERROR << e.base().what();
-        Json::Value ret{};
-        ret["error"] = "database error";
-        auto resp = HttpResponse::newHttpJsonResponse(ret);
-        resp->setStatusCode(HttpStatusCode::k500InternalServerError);
-        callback(resp);
     }
-}
+
+// void PersonsController::getOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, int personId) const {
+//     LOG_DEBUG << "getOne personId: "<< personId;
+//     try {
+//         auto dbClientPtr = drogon::app().getDbClient();
+
+//         const char *sql = "select person.*, \n\
+//                            job.title as job_title, \n\
+//                            department.name as department_name, \n\
+//                            concat(manager.first_name, ' ', manager.last_name) as manager_full_name \n\
+//                            from person \n\
+//                            join job on person.job_id =job.id \n\
+//                            join department on person.department_id=department.id \n\
+//                            join person as manager on person.manager_id = manager.id \n\
+//                            where person.id = $1";
+
+//         auto f = dbClientPtr->execSqlAsyncFuture(sql, personId);
+
+//         auto result = f.get(); // Block until we get the result or catch the exception;
+//         if (result.empty()) {
+//             Json::Value ret{};
+//             ret["error"] = "resource not found";
+//             auto resp = HttpResponse::newHttpJsonResponse(ret);
+//             resp->setStatusCode(HttpStatusCode::k404NotFound);
+//             callback(resp);
+//         }
+
+//         auto row = result[0];
+//         PersonInfo personInfo{row};
+//         PersonDetails personDetails{personInfo};
+
+//         Json::Value ret = personDetails.toJson();
+//         auto resp = HttpResponse::newHttpJsonResponse(ret);
+//         resp->setStatusCode(HttpStatusCode::k200OK);
+//         callback(resp);
+//     } catch (const DrogonDbException & e) {
+//         LOG_ERROR << e.base().what();
+//         Json::Value ret{};
+//         ret["error"] = "database error";
+//         auto resp = HttpResponse::newHttpJsonResponse(ret);
+//         resp->setStatusCode(HttpStatusCode::k500InternalServerError);
+//         callback(resp);
+//     }
+// }
 
 void PersonsController::createOne(const HttpRequestPtr &req, std::function<void(const HttpResponsePtr &)> &&callback, Person &&pPerson) const {
     LOG_DEBUG << "createOne";
