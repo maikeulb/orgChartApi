@@ -9,8 +9,8 @@ using namespace drogon_model::org_chart;
 class DepartmentsController : public drogon::HttpController<DepartmentsController> {
  public:
     METHOD_LIST_BEGIN
-      ADD_METHOD_TO(DepartmentsController::get, "/departments", Get, "LoginFilter");
-      ADD_METHOD_TO(DepartmentsController::getOne, "/departments/{1}", Get, "LoginFilter");
+      ADD_METHOD_TO(DepartmentsController::get, "/departments", Get);
+      ADD_METHOD_TO(DepartmentsController::getOne, "/departments/{1}", Get);
       ADD_METHOD_TO(DepartmentsController::createOne, "/departments", Post, "LoginFilter");
       ADD_METHOD_TO(DepartmentsController::updateOne, "/departments/{1}", Put, "LoginFilter");
       ADD_METHOD_TO(DepartmentsController::deleteOne, "/departments/{1}", Delete, "LoginFilter");
