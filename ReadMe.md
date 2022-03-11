@@ -138,13 +138,8 @@ Usage
         },
         "last_name": "Reed",
         "manager": {
-            "department_id": 1,
-            "first_name": "Sabryna",
-            "hire_date": "2014-02-01",
             "id": 1,
-            "job_id": 1,
-            "last_name": "Peers",
-            "manager_id": 1
+            "full_name": "Sabryna Peers",
         }
     },
     {
@@ -161,13 +156,8 @@ Usage
         },
         "last_name": "Axl",
         "manager": {
-            "department_id": 1,
-            "first_name": "Sabryna",
-            "hire_date": "2014-02-01",
             "id": 1,
-            "job_id": 1,
-            "last_name": "Peers",
-            "manager_id": 1
+            "full_name": "Sabryna Peers",
         }
     },
     {
@@ -184,13 +174,8 @@ Usage
         },
         "last_name": "Stuart",
         "manager": {
-            "department_id": 1,
-            "first_name": "Gary",
-            "hire_date": "2018-04-07 01:00:00",
             "id": 2,
-            "job_id": 2,
-            "last_name": "Reed",
-            "manager_id": 1
+            "full_name": "Gary Reed",
         }
     },
 ...
